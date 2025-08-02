@@ -145,14 +145,39 @@ class EnhancedCodeAnalyzer:
             'metrics': {}
         }
         
+        # Get all code files
+        code_files = self._get_code_files()
+        logger.info(f"Found {len(code_files)} code files to analyze")
+        
+        successful_analyses = 0
+        failed_analyses = 0
+        
         # Analyze each file
-        for file_path in self._get_code_files():
+        for i, file_path in enumerate(code_files):
+            logger.info(f"Analyzing file {i+1}/{len(code_files)}: {file_path}")
             try:
                 file_analysis = self.analyze_file(file_path)
                 analysis['files'][str(file_path)] = file_analysis
                 analysis['error_patterns'].extend(file_analysis.get('error_patterns', []))
+                successful_analyses += 1
+                logger.info(f"✅ Successfully analyzed: {file_path}")
             except Exception as e:
-                logger.error(f"Error analyzing {file_path}: {e}")
+                failed_analyses += 1
+                logger.error(f"❌ Error analyzing {file_path}: {e}")
+                # Add a basic file entry even if analysis fails
+                analysis['files'][str(file_path)] = {
+                    'language': 'unknown',
+                    'size': 0,
+                    'lines': 0,
+                    'functions': [],
+                    'classes': [],
+                    'imports': [],
+                    'error_patterns': [],
+                    'complexity': 0,
+                    'analysis_error': str(e)
+                }
+        
+        logger.info(f"Analysis complete: {successful_analyses} successful, {failed_analyses} failed")
         
         # Calculate project metrics
         analysis['metrics'] = self._calculate_project_metrics(analysis)
@@ -169,10 +194,18 @@ class EnhancedCodeAnalyzer:
         Returns:
             Dictionary containing file analysis
         """
-        language = self._detect_language(file_path)
+        logger.debug(f"Starting analysis of {file_path}")
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        language = self._detect_language(file_path)
+        logger.debug(f"Detected language: {language.value}")
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            logger.debug(f"Read {len(content)} characters from {file_path}")
+        except Exception as e:
+            logger.error(f"Failed to read file {file_path}: {e}")
+            raise
         
         analysis = {
             'language': language.value,
@@ -185,47 +218,88 @@ class EnhancedCodeAnalyzer:
             'complexity': 0
         }
         
-        if language == LanguageType.PYTHON:
-            analysis.update(self._analyze_python_file(content, file_path))
-        elif language == LanguageType.JAVASCRIPT:
-            analysis.update(self._analyze_javascript_file(content, file_path))
-        elif language == LanguageType.JAVA:
-            analysis.update(self._analyze_java_file(content, file_path))
+        logger.debug(f"Basic analysis: {analysis['lines']} lines, {analysis['size']} bytes")
+        
+        try:
+            if language == LanguageType.PYTHON:
+                logger.debug(f"Analyzing as Python file")
+                analysis.update(self._analyze_python_file(content, file_path))
+            elif language == LanguageType.JAVASCRIPT:
+                logger.debug(f"Analyzing as JavaScript file")
+                analysis.update(self._analyze_javascript_file(content, file_path))
+            elif language == LanguageType.JAVA:
+                logger.debug(f"Analyzing as Java file")
+                analysis.update(self._analyze_java_file(content, file_path))
+            else:
+                logger.debug(f"Unknown language, skipping detailed analysis")
+        except Exception as e:
+            logger.error(f"Error in detailed analysis of {file_path}: {e}")
+            raise
+        
+        logger.debug(f"Analysis complete for {file_path}: {len(analysis.get('functions', []))} functions, {len(analysis.get('classes', []))} classes")
         
         return analysis
     
     def _analyze_python_file(self, content: str, file_path: Path) -> Dict[str, Any]:
         """Analyze a Python file using AST."""
+        logger.debug(f"Starting Python AST analysis for {file_path}")
+        
         try:
+            logger.debug(f"Parsing AST for {file_path}")
             tree = ast.parse(content)
+            logger.debug(f"AST parsing successful for {file_path}")
             
             functions = []
             classes = []
             imports = []
             error_patterns = []
             
+            logger.debug(f"Walking AST nodes for {file_path}")
             for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    func_info = self._extract_function_info(node, content)
-                    functions.append(func_info)
-                    
-                elif isinstance(node, ast.ClassDef):
-                    class_info = self._extract_class_info(node, content)
-                    classes.append(class_info)
-                    
-                elif isinstance(node, (ast.Import, ast.ImportFrom)):
-                    import_info = self._extract_import_info(node)
-                    imports.append(import_info)
+                try:
+                    if isinstance(node, ast.FunctionDef):
+                        logger.debug(f"Found function: {node.name}")
+                        func_info = self._extract_function_info(node, content)
+                        functions.append(func_info)
+                        
+                    elif isinstance(node, ast.ClassDef):
+                        logger.debug(f"Found class: {node.name}")
+                        class_info = self._extract_class_info(node, content)
+                        classes.append(class_info)
+                        
+                    elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                        logger.debug(f"Found import statement")
+                        import_info = self._extract_import_info(node)
+                        imports.append(import_info)
+                except Exception as e:
+                    logger.error(f"Error processing AST node in {file_path}: {e}")
+                    # Continue processing other nodes instead of failing completely
+                    continue
+            
+            logger.debug(f"AST walk complete for {file_path}: {len(functions)} functions, {len(classes)} classes, {len(imports)} imports")
             
             # Detect error patterns
-            error_patterns = self._detect_python_error_patterns(tree, content)
+            try:
+                logger.debug(f"Detecting error patterns for {file_path}")
+                error_patterns = self._detect_python_error_patterns(tree, content)
+                logger.debug(f"Found {len(error_patterns)} error patterns in {file_path}")
+            except Exception as e:
+                logger.error(f"Error detecting patterns in {file_path}: {e}")
+                error_patterns = []
             
-            return {
+            result = {
                 'functions': [self._function_to_dict(f) for f in functions],
                 'classes': [self._class_to_dict(c) for c in classes],
                 'imports': imports,
                 'error_patterns': [self._error_pattern_to_dict(e) for e in error_patterns]
             }
+            
+            logger.debug(f"Python analysis complete for {file_path}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"AST parsing failed for {file_path}: {e}")
+            raise
             
         except SyntaxError as e:
             logger.error(f"Syntax error in {file_path}: {e}")
@@ -347,47 +421,63 @@ class EnhancedCodeAnalyzer:
         patterns = []
         lines = content.splitlines()
         
-        for node in ast.walk(tree):
-            # Undefined variables
-            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-                if not self._is_variable_defined(node.id, node, tree):
-                    patterns.append(ErrorPattern(
-                        type='undefined_variable',
-                        severity='error',
-                        line=node.lineno,
-                        message=f"Variable '{node.id}' might be undefined",
-                        suggestion=f"Define '{node.id}' before using it",
-                        code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
-                    ))
-            
-            # Type mismatches (basic detection)
-            if isinstance(node, ast.BinOp):
-                if isinstance(node.op, ast.Add):
-                    if (isinstance(node.left, ast.Str) and isinstance(node.right, ast.Num)) or \
-                       (isinstance(node.left, ast.Num) and isinstance(node.right, ast.Str)):
-                        patterns.append(ErrorPattern(
-                            type='type_mismatch',
-                            severity='warning',
-                            line=node.lineno,
-                            message="Potential type mismatch in addition",
-                            suggestion="Convert types explicitly or use proper types",
-                            code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
-                        ))
+        try:
+            for node in ast.walk(tree):
+                try:
+                    # Undefined variables
+                    if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                        if hasattr(node, 'id') and hasattr(node, 'lineno'):
+                            if not self._is_variable_defined(node.id, node, tree):
+                                patterns.append(ErrorPattern(
+                                    type='undefined_variable',
+                                    severity='error',
+                                    line=node.lineno,
+                                    message=f"Variable '{node.id}' might be undefined",
+                                    suggestion=f"Define '{node.id}' before using it",
+                                    code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
+                                ))
+                    
+                    # Type mismatches (basic detection)
+                    if isinstance(node, ast.BinOp):
+                        if isinstance(node.op, ast.Add):
+                            if (isinstance(node.left, ast.Str) and isinstance(node.right, ast.Num)) or \
+                               (isinstance(node.left, ast.Num) and isinstance(node.right, ast.Str)):
+                                if hasattr(node, 'lineno'):
+                                    patterns.append(ErrorPattern(
+                                        type='type_mismatch',
+                                        severity='warning',
+                                        line=node.lineno,
+                                        message="Potential type mismatch in addition",
+                                        suggestion="Convert types explicitly or use proper types",
+                                        code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
+                                    ))
+                except Exception as e:
+                    logger.debug(f"Error processing AST node in error pattern detection: {e}")
+                    continue
+        except Exception as e:
+            logger.error(f"Error in error pattern detection: {e}")
         
         return patterns
     
     def _is_variable_defined(self, var_name: str, node: ast.AST, tree: ast.AST) -> bool:
         """Check if a variable is defined before use."""
         # Simplified check - in a real implementation, this would be more sophisticated
-        for ancestor in self._get_ancestors(node, tree):
-            if isinstance(ancestor, ast.FunctionDef):
-                # Check function parameters
-                if var_name in [arg.arg for arg in ancestor.args.args]:
-                    return True
-            elif isinstance(ancestor, ast.ClassDef):
-                # Check class attributes
-                if var_name in [attr.id for attr in ancestor.body if isinstance(attr, ast.Assign) and isinstance(attr.targets[0], ast.Name)]:
-                    return True
+        try:
+            for ancestor in self._get_ancestors(node, tree):
+                if isinstance(ancestor, ast.FunctionDef):
+                    # Check function parameters
+                    if var_name in [arg.arg for arg in ancestor.args.args]:
+                        return True
+                elif isinstance(ancestor, ast.ClassDef):
+                    # Check class attributes - safely access .id attribute
+                    for attr in ancestor.body:
+                        if isinstance(attr, ast.Assign) and attr.targets:
+                            target = attr.targets[0]
+                            if isinstance(target, ast.Name) and hasattr(target, 'id'):
+                                if target.id == var_name:
+                                    return True
+        except Exception as e:
+            logger.debug(f"Error checking variable definition for {var_name}: {e}")
         
         return False
     
@@ -402,11 +492,14 @@ class EnhancedCodeAnalyzer:
     
     def _get_return_type_annotation(self, node: ast.FunctionDef) -> Optional[str]:
         """Get return type annotation from function."""
-        if node.returns:
-            if isinstance(node.returns, ast.Name):
-                return node.returns.id
-            elif isinstance(node.returns, ast.Constant):
-                return str(node.returns.value)
+        try:
+            if node.returns:
+                if isinstance(node.returns, ast.Name) and hasattr(node.returns, 'id'):
+                    return node.returns.id
+                elif isinstance(node.returns, ast.Constant) and hasattr(node.returns, 'value'):
+                    return str(node.returns.value)
+        except Exception as e:
+            logger.debug(f"Error getting return type annotation: {e}")
         return None
     
     def _extract_js_functions(self, content: str) -> List[Dict[str, Any]]:
@@ -637,11 +730,27 @@ class EnhancedCodeAnalyzer:
         code_extensions = {'.py', '.js', '.jsx', '.ts', '.tsx', '.java'}
         code_files = []
         
+        # Directories to skip
+        skip_dirs = {'.git', '.vscode', '.idea', '__pycache__', 'node_modules', '.pytest_cache', '.mypy_cache'}
+        
+        logger.info(f"Scanning for code files in {self.project_path}")
+        logger.info(f"Looking for extensions: {code_extensions}")
+        logger.info(f"Skipping directories: {skip_dirs}")
+        
         for file_path in self.project_path.rglob('*'):
             if file_path.is_file() and file_path.suffix.lower() in code_extensions:
-                # Skip common directories to ignore
-                if not any(part.startswith('.') for part in file_path.parts):
+                # Skip files in directories we want to ignore
+                if not any(part in skip_dirs for part in file_path.parts):
                     code_files.append(file_path)
+                    logger.debug(f"Found code file: {file_path}")
+                else:
+                    logger.debug(f"Skipping file in ignored directory: {file_path}")
+        
+        logger.info(f"Found {len(code_files)} code files in {self.project_path}")
+        
+        # Log all found files
+        for i, file_path in enumerate(code_files):
+            logger.info(f"  {i+1}. {file_path}")
         
         return code_files
     

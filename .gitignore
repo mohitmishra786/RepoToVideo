@@ -197,6 +197,7 @@ audio_files/
 temp-*
 *.tmp
 *.temp
+real_repo_output/
 
 # Log files
 *.log
