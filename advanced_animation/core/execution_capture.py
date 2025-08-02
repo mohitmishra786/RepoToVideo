@@ -170,7 +170,8 @@ class RuntimeStateCapture:
                 "import time",
                 "import json",
                 "import traceback",
-                "import os"
+                "import os",
+                "import tempfile"
             ]
             
             # Create instrumentation code
@@ -196,8 +197,9 @@ def capture_state():
             if not k.startswith('_')
         }
     
-    # Write state to file
-    with open('/tmp/execution_state.json', 'w') as f:
+    # Write state to file using platform-independent temp directory
+    state_file_path = os.path.join(tempfile.gettempdir(), 'execution_state.json')
+    with open(state_file_path, 'w') as f:
         json.dump(state, f)
     
     return state
@@ -206,16 +208,34 @@ def capture_state():
 """
             instrumented_code += code_content
             
-            # Add state capture calls at key points
+            # Add state capture calls at key points with proper indentation
             lines = instrumented_code.split('\n')
             instrumented_lines = []
+            
+            # Track if we're inside the capture_state function
+            inside_capture_state = False
             
             for i, line in enumerate(lines):
                 instrumented_lines.append(line)
                 
-                # Add state capture after function definitions and loops
-                if line.strip().startswith('def ') or line.strip().startswith('for ') or line.strip().startswith('while '):
-                    instrumented_lines.append("    capture_state()")
+                # Check if we're entering or leaving the capture_state function
+                if line.strip().startswith('def capture_state'):
+                    inside_capture_state = True
+                elif inside_capture_state and line.strip() == '':
+                    # Empty line after function definition means we're out of the function
+                    inside_capture_state = False
+                
+                # Add state capture after complete function/loop definitions, but not inside capture_state function
+                if (not inside_capture_state and 
+                    line.strip().endswith(':') and  # Only after complete definitions
+                    (line.strip().startswith('def ') or line.strip().startswith('for ') or line.strip().startswith('while ')) and 
+                    'capture_state' not in line):
+                    
+                    # Detect the original line's indentation
+                    original_indent = len(line) - len(line.lstrip())
+                    # Use the same indentation for the capture_state() call
+                    capture_indent = ' ' * original_indent
+                    instrumented_lines.append(f"{capture_indent}capture_state()")
             
             return '\n'.join(instrumented_lines)
             
@@ -226,9 +246,10 @@ def capture_state():
     def _get_python_variables(self, sandbox) -> Dict[str, Any]:
         """Get variable states from Python execution."""
         try:
-            # Try to read state file
+            # Try to read state file using platform-independent path
             try:
-                state_file = sandbox.filesystem.read("/tmp/execution_state.json")
+                state_file_path = os.path.join(tempfile.gettempdir(), 'execution_state.json')
+                state_file = sandbox.filesystem.read(state_file_path)
                 state_data = json.loads(state_file)
                 return state_data.get('variables', {})
             except:
@@ -255,7 +276,8 @@ def capture_state():
         """Get call stack from Python execution."""
         try:
             try:
-                state_file = sandbox.filesystem.read("/tmp/execution_state.json")
+                state_file_path = os.path.join(tempfile.gettempdir(), 'execution_state.json')
+                state_file = sandbox.filesystem.read(state_file_path)
                 state_data = json.loads(state_file)
                 return state_data.get('call_stack', [])
             except:
@@ -269,7 +291,8 @@ def capture_state():
         """Get current execution line number."""
         try:
             try:
-                state_file = sandbox.filesystem.read("/tmp/execution_state.json")
+                state_file_path = os.path.join(tempfile.gettempdir(), 'execution_state.json')
+                state_file = sandbox.filesystem.read(state_file_path)
                 state_data = json.loads(state_file)
                 return state_data.get('line_number', 0)
             except:
