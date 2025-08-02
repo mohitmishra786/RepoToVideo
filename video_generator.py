@@ -10,8 +10,8 @@ import tempfile
 import numpy as np
 from typing import List, Dict, Optional, Tuple
 from moviepy import (
-    VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip,
-    ColorClip, ImageClip, concatenate_videoclips, vfx
+    VideoFileClip, AudioFileClip, ImageClip, CompositeVideoClip,
+    ColorClip, concatenate_videoclips
 )
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -36,6 +36,197 @@ class VideoGenerator:
         self.fps = 30
         self.background_color = (25, 25, 35)  # Dark blue-gray
         
+    def create_step_visualization(self, step: Dict, step_number: int) -> str:
+        """
+        Create a visual representation of the step using matplotlib.
+        
+        Args:
+            step: Step information
+            step_number: Step number
+            
+        Returns:
+            Path to the generated image
+        """
+        try:
+            fig, ax = plt.subplots(figsize=(16, 9))
+            fig.patch.set_facecolor('#1e1e1e')
+            ax.set_facecolor('#1e1e1e')
+            
+            # Title
+            ax.text(0.5, 0.95, step['title'], fontsize=24, color='white', 
+                    ha='center', va='top', weight='bold', transform=ax.transAxes)
+            
+            step_type = step.get('type', 'generic')
+            content = step.get('content', {})
+            
+            if step_type == 'intro':
+                # Introduction slide
+                repo_name = content.get('repo_name', 'Repository')
+                owner = content.get('owner', 'Unknown')
+                ax.text(0.5, 0.7, f"Repository: {repo_name}", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, f"Owner: {owner}", fontsize=18, color='lightblue', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.5, "RepoToVideo Walkthrough", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+                        
+            elif step_type == 'overview':
+                # Overview slide
+                ax.text(0.5, 0.7, "Repository Overview", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "Understanding the project structure", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+                        
+            elif step_type == 'structure':
+                # Structure slide
+                ax.text(0.5, 0.7, "Repository Structure", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "Analyzing file organization", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+                        
+            elif step_type == 'code_review':
+                # Code review slide
+                filename = content.get('filename', 'Code')
+                ax.text(0.5, 0.7, f"Examining {filename}", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "Code analysis and review", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+                        
+            elif step_type == 'error_simulation':
+                # Error simulation slide
+                ax.text(0.5, 0.7, "Error Handling and Debugging", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "Common programming errors and solutions", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+                           
+            elif step_type == 'summary':
+                # Summary slide
+                ax.text(0.5, 0.7, "Summary and Key Takeaways", fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "What we've learned from this repository", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+            
+            else:
+                # Generic slide
+                ax.text(0.5, 0.7, step.get('title', 'Analysis'), fontsize=20, color='white', 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.6, "Step-by-step analysis", fontsize=16, color='lightgray', 
+                       ha='center', va='center', transform=ax.transAxes)
+            
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.axis('off')
+            
+            # Save image
+            image_path = os.path.join(self.temp_dir, f"step_{step_number}.png")
+            plt.savefig(image_path, dpi=150, bbox_inches='tight', 
+                       facecolor='#1e1e1e', edgecolor='none')
+            plt.close()
+            
+            return image_path
+            
+        except Exception as e:
+            print(f"Warning: Error creating visualization for step {step_number}: {str(e)}")
+            # Create a simple fallback image
+            try:
+                fig, ax = plt.subplots(figsize=(16, 9))
+                fig.patch.set_facecolor('#1e1e1e')
+                ax.set_facecolor('#1e1e1e')
+                ax.text(0.5, 0.5, f"Step {step_number + 1}: {step.get('title', 'Unknown')}", 
+                       fontsize=24, color='white', ha='center', va='center', transform=ax.transAxes)
+                ax.set_xlim(0, 1)
+                ax.set_ylim(0, 1)
+                ax.axis('off')
+                
+                image_path = os.path.join(self.temp_dir, f"step_{step_number}_fallback.png")
+                plt.savefig(image_path, dpi=150, bbox_inches='tight', 
+                           facecolor='#1e1e1e', edgecolor='none')
+                plt.close()
+                return image_path
+            except:
+                # Ultimate fallback - create a simple file
+                image_path = os.path.join(self.temp_dir, f"step_{step_number}_simple.png")
+                img = Image.new('RGB', (1920, 1080), color=(30, 30, 30))
+                img.save(image_path)
+                return image_path
+    
+    def create_video_clip(self, image_path: str, audio_path: Optional[str], duration: float):
+        """
+        Create a video clip from image and audio.
+        
+        Args:
+            image_path: Path to the image
+            audio_path: Path to the audio file (optional)
+            duration: Duration of the clip
+            
+        Returns:
+            VideoFileClip object
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            logger.info(f"Creating video clip from image: {image_path}")
+            logger.info(f"Audio path: {audio_path}")
+            logger.info(f"Duration: {duration}")
+            
+            # Create video from image
+            video_clip = ImageClip(image_path, duration=duration)
+            logger.info(f"ImageClip created successfully, type: {type(video_clip)}")
+            logger.info(f"ImageClip methods: {[method for method in dir(video_clip) if not method.startswith('_')]}")
+            
+            # Add audio if available
+            if audio_path and os.path.exists(audio_path):
+                logger.info(f"Audio file exists, attempting to add audio")
+                try:
+                    audio_clip = AudioFileClip(audio_path)
+                    logger.info(f"AudioClip created successfully, duration: {audio_clip.duration}")
+                    
+                    # Adjust duration to match audio if needed
+                    if audio_clip.duration > duration:
+                        duration = min(audio_clip.duration, 30 * 2)
+                        video_clip = video_clip.set_duration(duration)
+                        logger.info(f"Adjusted duration to: {duration}")
+                    
+                    # Try different methods to add audio
+                    logger.info("Attempting Method 1: with_audio")
+                    try:
+                        # Method 1: Use with_audio (correct method name)
+                        video_clip = video_clip.with_audio(audio_clip)
+                        logger.info("Method 1 successful: with_audio worked")
+                    except Exception as e:
+                        logger.warning(f"Method 1 failed: {str(e)}")
+                        logger.info("Attempting Method 2: CompositeVideoClip with with_audio")
+                        try:
+                            # Method 2: Use CompositeVideoClip with with_audio
+                            video_clip = CompositeVideoClip([video_clip]).with_audio(audio_clip)
+                            logger.info("Method 2 successful: CompositeVideoClip with with_audio worked")
+                        except Exception as e2:
+                            logger.warning(f"Method 2 failed: {str(e2)}")
+                            logger.info("Attempting Method 3: Create new ImageClip with with_audio")
+                            try:
+                                # Method 3: Create new clip with audio
+                                video_clip = ImageClip(image_path, duration=duration).with_audio(audio_clip)
+                                logger.info("Method 3 successful: New ImageClip with with_audio worked")
+                            except Exception as e3:
+                                logger.error(f"Method 3 failed: {str(e3)}")
+                                logger.info("All audio methods failed, continuing without audio")
+                                
+                except Exception as e:
+                    logger.error(f"Error creating AudioClip: {str(e)}")
+                    logger.info("Continuing without audio")
+            else:
+                logger.info("No audio file provided or file doesn't exist")
+            
+            logger.info(f"Final video clip type: {type(video_clip)}")
+            return video_clip
+            
+        except Exception as e:
+            # Fallback: create a simple colored clip if image fails
+            logger.error(f"Error creating video from image: {str(e)}")
+            logger.info("Creating fallback ColorClip")
+            return ColorClip(size=self.resolution, color=(30, 30, 30), duration=duration)
+        
     def create_video(self, steps: List[Dict], audio_files: List[str]) -> str:
         """
         Create the complete video from steps and audio files.
@@ -59,10 +250,6 @@ class VideoGenerator:
             for i, step in enumerate(steps):
                 logger.info(f"Creating visual for step {i+1}: {step.get('title', 'Unknown')}")
                 try:
-                    # Create visual content for the step
-                    visual_clip = self._create_simple_step_visual(step, i + 1)
-                    logger.info(f"Visual clip created for step {i+1}")
-                    
                     # Get corresponding audio
                     audio_clip = None
                     if i < len(audio_files) and audio_files[i]:
@@ -73,36 +260,20 @@ class VideoGenerator:
                         except Exception as e:
                             logger.error(f"Error loading audio file {audio_files[i]}: {str(e)}")
                     
-                    # Combine visual and audio
-                    if audio_clip:
-                        # Create new ColorClip with audio duration - use the same color as the original clip
-                        step_type = step.get('type', 'generic')
-                        if step_type == 'intro':
-                            color = (50, 100, 150)  # Blue
-                        elif step_type == 'overview':
-                            color = (100, 50, 150)  # Purple
-                        elif step_type == 'structure':
-                            color = (150, 100, 50)  # Orange
-                        elif step_type == 'code_analysis':
-                            color = (100, 150, 50)  # Green
-                        elif step_type == 'code_review':
-                            color = (150, 50, 100)  # Pink
-                        elif step_type == 'error_simulation':
-                            color = (150, 50, 50)  # Red
-                        elif step_type == 'summary':
-                            color = (50, 150, 100)  # Teal
-                        else:
-                            color = self.background_color
-                        
-                        final_clip = ColorClip(size=self.resolution, color=color, duration=audio_clip.duration).set_audio(audio_clip)
-                        logger.info(f"Combined visual and audio for step {i+1}, duration: {audio_clip.duration}")
-                    else:
-                        # Use default duration if no audio
-                        default_duration = step.get('duration', 30)
-                        final_clip = visual_clip
-                        logger.info(f"Using default duration for step {i+1}: {default_duration}")
+                    # Create visualization
+                    image_path = self.create_step_visualization(step, i)
+                    logger.info(f"Visualization created for step {i+1}")
                     
-                    video_clips.append(final_clip)
+                    # Determine duration
+                    if audio_clip:
+                        duration = max(audio_clip.duration, 5)  # Minimum 5 seconds
+                        audio_clip.close()  # Close to free memory
+                    else:
+                        duration = 10  # Default duration
+                    
+                    # Create video clip
+                    clip = self.create_video_clip(image_path, audio_files[i] if i < len(audio_files) else None, duration)
+                    video_clips.append(clip)
                     logger.info(f"Step {i+1} clip added to video clips list")
                     
                 except Exception as e:
@@ -110,8 +281,8 @@ class VideoGenerator:
                     import traceback
                     logger.error(f"Full traceback: {traceback.format_exc()}")
                     # Create a simple error clip instead
-                    error_clip = self._create_simple_error_visual(f"Error in step {i+1}: {str(e)}")
-                    video_clips.append(error_clip)
+                    fallback_clip = ColorClip(size=self.resolution, color=(100, 25, 25), duration=10)
+                    video_clips.append(fallback_clip)
             
             logger.info(f"Created {len(video_clips)} video clips")
             
@@ -157,90 +328,6 @@ class VideoGenerator:
             logger.error(f"Full traceback: {traceback.format_exc()}")
             raise
                 
-    def _create_simple_step_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """
-        Create a simple visual for a step using basic ColorClip.
-        
-        Args:
-            step: Step dictionary
-            step_number: Number of the step
-            
-        Returns:
-            VideoFileClip for the step
-        """
-        step_type = step.get('type', 'generic')
-        
-        if step_type == 'intro':
-            return self._create_simple_intro_visual(step, step_number)
-        elif step_type == 'overview':
-            return self._create_simple_overview_visual(step, step_number)
-        elif step_type == 'structure':
-            return self._create_simple_structure_visual(step, step_number)
-        elif step_type == 'code_analysis':
-            return self._create_simple_code_analysis_visual(step, step_number)
-        elif step_type == 'code_review':
-            return self._create_simple_code_review_visual(step, step_number)
-        elif step_type == 'error_simulation':
-            return self._create_simple_error_simulation_visual(step, step_number)
-        elif step_type == 'summary':
-            return self._create_simple_summary_visual(step, step_number)
-        else:
-            return self._create_simple_generic_visual(step, step_number)
-    
-    def _create_simple_intro_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple introduction visual."""
-        # Create background with different color for intro
-        background = ColorClip(size=self.resolution, color=(50, 100, 150), duration=20)  # Blue
-        return background
-    
-    def _create_simple_overview_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple overview visual."""
-        # Create background with different color for overview
-        background = ColorClip(size=self.resolution, color=(100, 50, 150), duration=25)  # Purple
-        return background
-    
-    def _create_simple_structure_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple structure visual."""
-        # Create background with different color for structure
-        background = ColorClip(size=self.resolution, color=(150, 100, 50), duration=30)  # Orange
-        return background
-    
-    def _create_simple_code_analysis_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple code analysis visual."""
-        # Create background with different color for code analysis
-        background = ColorClip(size=self.resolution, color=(100, 150, 50), duration=35)  # Green
-        return background
-    
-    def _create_simple_code_review_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple code review visual."""
-        # Create background with different color for code review
-        background = ColorClip(size=self.resolution, color=(150, 50, 100), duration=25)  # Pink
-        return background
-    
-    def _create_simple_error_simulation_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple error simulation visual."""
-        # Create background with different color for error simulation
-        background = ColorClip(size=self.resolution, color=(150, 50, 50), duration=40)  # Red
-        return background
-    
-    def _create_simple_summary_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple summary visual."""
-        # Create background with different color for summary
-        background = ColorClip(size=self.resolution, color=(50, 150, 100), duration=30)  # Teal
-        return background
-    
-    def _create_simple_error_visual(self, error_message: str) -> VideoFileClip:
-        """Create simple error visual for failed steps."""
-        # Create background with error color
-        background = ColorClip(size=self.resolution, color=(100, 25, 25), duration=10)  # Dark red
-        return background
-
-    def _create_simple_generic_visual(self, step: Dict, step_number: int) -> VideoFileClip:
-        """Create simple generic visual for unknown step types."""
-        # Create background with default color
-        background = ColorClip(size=self.resolution, color=self.background_color, duration=30)
-        return background
-    
     def cleanup(self):
         """Clean up temporary files."""
         try:
@@ -248,8 +335,8 @@ class VideoGenerator:
                 import shutil
                 shutil.rmtree(self.temp_dir)
         except Exception as e:
-            print(f"Error cleaning up temp directory: {str(e)}")
+            print(f"Warning: Could not clean up temp directory: {str(e)}")
     
     def __del__(self):
-        """Destructor to ensure cleanup."""
+        """Cleanup on deletion."""
         self.cleanup() 
