@@ -273,6 +273,7 @@ class EnhancedCodeAnalyzer:
                         imports.append(import_info)
                 except Exception as e:
                     logger.error(f"Error processing AST node in {file_path}: {e}")
+                    # Continue processing other nodes instead of failing completely
                     continue
             
             logger.debug(f"AST walk complete for {file_path}: {len(functions)} functions, {len(classes)} classes, {len(imports)} imports")
@@ -420,47 +421,63 @@ class EnhancedCodeAnalyzer:
         patterns = []
         lines = content.splitlines()
         
-        for node in ast.walk(tree):
-            # Undefined variables
-            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-                if not self._is_variable_defined(node.id, node, tree):
-                    patterns.append(ErrorPattern(
-                        type='undefined_variable',
-                        severity='error',
-                        line=node.lineno,
-                        message=f"Variable '{node.id}' might be undefined",
-                        suggestion=f"Define '{node.id}' before using it",
-                        code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
-                    ))
-            
-            # Type mismatches (basic detection)
-            if isinstance(node, ast.BinOp):
-                if isinstance(node.op, ast.Add):
-                    if (isinstance(node.left, ast.Str) and isinstance(node.right, ast.Num)) or \
-                       (isinstance(node.left, ast.Num) and isinstance(node.right, ast.Str)):
-                        patterns.append(ErrorPattern(
-                            type='type_mismatch',
-                            severity='warning',
-                            line=node.lineno,
-                            message="Potential type mismatch in addition",
-                            suggestion="Convert types explicitly or use proper types",
-                            code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
-                        ))
+        try:
+            for node in ast.walk(tree):
+                try:
+                    # Undefined variables
+                    if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                        if hasattr(node, 'id') and hasattr(node, 'lineno'):
+                            if not self._is_variable_defined(node.id, node, tree):
+                                patterns.append(ErrorPattern(
+                                    type='undefined_variable',
+                                    severity='error',
+                                    line=node.lineno,
+                                    message=f"Variable '{node.id}' might be undefined",
+                                    suggestion=f"Define '{node.id}' before using it",
+                                    code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
+                                ))
+                    
+                    # Type mismatches (basic detection)
+                    if isinstance(node, ast.BinOp):
+                        if isinstance(node.op, ast.Add):
+                            if (isinstance(node.left, ast.Str) and isinstance(node.right, ast.Num)) or \
+                               (isinstance(node.left, ast.Num) and isinstance(node.right, ast.Str)):
+                                if hasattr(node, 'lineno'):
+                                    patterns.append(ErrorPattern(
+                                        type='type_mismatch',
+                                        severity='warning',
+                                        line=node.lineno,
+                                        message="Potential type mismatch in addition",
+                                        suggestion="Convert types explicitly or use proper types",
+                                        code_snippet=lines[node.lineno - 1] if node.lineno <= len(lines) else ''
+                                    ))
+                except Exception as e:
+                    logger.debug(f"Error processing AST node in error pattern detection: {e}")
+                    continue
+        except Exception as e:
+            logger.error(f"Error in error pattern detection: {e}")
         
         return patterns
     
     def _is_variable_defined(self, var_name: str, node: ast.AST, tree: ast.AST) -> bool:
         """Check if a variable is defined before use."""
         # Simplified check - in a real implementation, this would be more sophisticated
-        for ancestor in self._get_ancestors(node, tree):
-            if isinstance(ancestor, ast.FunctionDef):
-                # Check function parameters
-                if var_name in [arg.arg for arg in ancestor.args.args]:
-                    return True
-            elif isinstance(ancestor, ast.ClassDef):
-                # Check class attributes
-                if var_name in [attr.id for attr in ancestor.body if isinstance(attr, ast.Assign) and isinstance(attr.targets[0], ast.Name)]:
-                    return True
+        try:
+            for ancestor in self._get_ancestors(node, tree):
+                if isinstance(ancestor, ast.FunctionDef):
+                    # Check function parameters
+                    if var_name in [arg.arg for arg in ancestor.args.args]:
+                        return True
+                elif isinstance(ancestor, ast.ClassDef):
+                    # Check class attributes - safely access .id attribute
+                    for attr in ancestor.body:
+                        if isinstance(attr, ast.Assign) and attr.targets:
+                            target = attr.targets[0]
+                            if isinstance(target, ast.Name) and hasattr(target, 'id'):
+                                if target.id == var_name:
+                                    return True
+        except Exception as e:
+            logger.debug(f"Error checking variable definition for {var_name}: {e}")
         
         return False
     
@@ -475,11 +492,14 @@ class EnhancedCodeAnalyzer:
     
     def _get_return_type_annotation(self, node: ast.FunctionDef) -> Optional[str]:
         """Get return type annotation from function."""
-        if node.returns:
-            if isinstance(node.returns, ast.Name):
-                return node.returns.id
-            elif isinstance(node.returns, ast.Constant):
-                return str(node.returns.value)
+        try:
+            if node.returns:
+                if isinstance(node.returns, ast.Name) and hasattr(node.returns, 'id'):
+                    return node.returns.id
+                elif isinstance(node.returns, ast.Constant) and hasattr(node.returns, 'value'):
+                    return str(node.returns.value)
+        except Exception as e:
+            logger.debug(f"Error getting return type annotation: {e}")
         return None
     
     def _extract_js_functions(self, content: str) -> List[Dict[str, Any]]:

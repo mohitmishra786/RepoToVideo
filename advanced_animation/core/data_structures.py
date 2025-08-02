@@ -50,6 +50,7 @@ class StoryboardScene:
     camera_movement: CameraMovement
     code_snippet: Optional[str] = None
     execution_state: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 @dataclass
 class Storyboard:
@@ -124,7 +125,8 @@ class DataStructureManager:
                     duration=scene_data['duration'],
                     camera_movement=camera_movement,
                     code_snippet=scene_data.get('code_snippet'),
-                    execution_state=scene_data.get('execution_state')
+                    execution_state=scene_data.get('execution_state'),
+                    metadata=scene_data.get('metadata')
                 )
                 scenes.append(scene)
             

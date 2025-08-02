@@ -12,19 +12,19 @@ import logging
 from pathlib import Path
 import argparse
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
 # Add current directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Import logging utilities
+from advanced_animation.utils.logging_config import setup_logging_for_run, get_logger
+
+# Setup logging for this run
+logging_manager = setup_logging_for_run("logs", logging.INFO)
+logger = get_logger(__name__)
 
 from advanced_animation import AdvancedAnimationSystem
 from code_analysis import EnhancedCodeAnalyzer
 from repo_fetcher import RepoFetcher
-import os
 import tempfile
 import subprocess
 
@@ -112,46 +112,26 @@ def analyze_github_repo(repo_url: str, output_dir: str = "real_repo_output"):
         storyboard_path = system.save_storyboard(storyboard, f"{repo_url.split('/')[-1]}_storyboard.json")
         print(f"\n💾 Saved storyboard to: {storyboard_path}")
         
-        # Create animations (render all scenes)
-        print("\n🎥 Creating animations...")
+        # Create animations with audio generation
+        print("\n🎥 Creating animations with audio...")
         print("   This may take several minutes...")
         
-        video_files = []
-        for i, scene in enumerate(storyboard.scenes):  # Render all scenes
-            print(f"   Rendering scene {i+1}/{len(storyboard.scenes)}...")
-            try:
-                video_path = system.scene_renderer.render_scene(scene)
-                video_files.append(video_path)
-                print(f"   ✅ Scene {i+1} rendered: {video_path}")
-            except Exception as e:
-                print(f"   ❌ Scene {i+1} failed: {e}")
-        
-        # Merge all scenes into one final video
-        print(f"\n🎬 Merging scenes into final video...")
         try:
-            from advanced_animation.rendering.video_merger import VideoMerger
-            
-            merger = VideoMerger(output_dir)
-            final_video_path = merger.merge_scenes(video_files, storyboard_path)
-            
-            if final_video_path:
-                print(f"   ✅ Final video created: {final_video_path}")
-            else:
-                print(f"   ❌ Failed to create final video")
-                
+            # Use the full animation system which includes audio generation
+            final_video_path = system.create_animation_from_code(code_analysis)
+            print(f"   ✅ Complete animation created: {final_video_path}")
+            return True
         except Exception as e:
-            print(f"   ❌ Error merging videos: {e}")
+            print(f"   ❌ Animation creation failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
         
         print(f"\n🎉 Animation creation completed!")
         print(f"📁 Check the '{output_dir}' directory for:")
         print(f"   - {repo_url.split('/')[-1]}_storyboard.json (storyboard data)")
         print(f"   - Generated individual scene videos")
         print(f"   - final_video/ (merged comprehensive video)")
-        
-        if video_files:
-            print(f"\n📹 Generated videos:")
-            for video_file in video_files:
-                print(f"   - {video_file}")
         
         return True
         

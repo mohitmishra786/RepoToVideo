@@ -14,13 +14,12 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Import logging utilities
+from .utils.logging_config import setup_logging_for_run, get_logger
 
-logger = logging.getLogger(__name__)
+# Setup logging for this run
+logging_manager = setup_logging_for_run("logs", logging.INFO)
+logger = get_logger(__name__)
 
 # Import main components
 from .core.data_structures import (
@@ -32,6 +31,7 @@ from .core.execution_capture import RuntimeStateCapture
 from .visualizations.visual_metaphors import VisualMetaphorLibrary
 from .rendering.manim_scene import AdvancedManimScene, ManimSceneRenderer
 from .rendering.video_merger import VideoMerger
+from .audio.audio_generator import AudioGenerator
 
 class AdvancedAnimationSystem:
     """Main orchestrator for the advanced animation system."""
@@ -50,6 +50,7 @@ class AdvancedAnimationSystem:
         self.scene_renderer = ManimSceneRenderer(output_dir)
         self.video_merger = VideoMerger(output_dir)
         self.visual_library = VisualMetaphorLibrary()
+        self.audio_generator = AudioGenerator()
         
         logger.info("AdvancedAnimationSystem initialized")
     
@@ -75,6 +76,15 @@ class AdvancedAnimationSystem:
             # Capture execution traces if requested
             if capture_execution:
                 self._add_execution_traces_to_storyboard(storyboard, code_analysis)
+            
+            # Generate audio for all scenes
+            logger.info("🎵 Generating audio narration for scenes...")
+            try:
+                audio_files = self.audio_generator.generate_storyboard_audio(storyboard, self.output_dir)
+                logger.info(f"✅ Generated audio for {len(audio_files)} scenes")
+            except Exception as e:
+                logger.error(f"❌ Error generating audio: {e}")
+                audio_files = {}
             
             # Render all scenes
             video_files = []

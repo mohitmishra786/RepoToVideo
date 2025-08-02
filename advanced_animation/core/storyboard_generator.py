@@ -101,41 +101,74 @@ class StoryboardGenerator:
             return self._generate_fallback_storyboard(code_analysis)
     
     def _generate_ai_storyboard(self, code_analysis: Dict[str, Any]) -> Storyboard:
-        """Generate storyboard using GPT-4 AI."""
-        try:
-            logger.info("Using GPT-4 for AI-powered storyboard generation")
-            
-            # Prepare the prompt
-            prompt = self._create_storyboard_prompt(code_analysis)
-            
-            # Call GPT-4
-            response = self.client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert in creating 3Blue1Brown-style educational animations. Convert code analysis into visual storyboards with clear visual metaphors and smooth animations."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                response_format={"type": "json_object"},
-                temperature=0.7,
-                max_tokens=4000
-            )
-            
-            # Parse the response
-            storyboard_data = json.loads(response.choices[0].message.content)
-            logger.info(f"Successfully generated AI storyboard with {len(storyboard_data.get('scenes', []))} scenes")
-            
-            return self._parse_storyboard_response(storyboard_data, code_analysis)
-            
-        except Exception as e:
-            logger.error(f"Error generating AI storyboard: {e}")
-            logger.info("Falling back to rule-based storyboard generation")
-            return self._generate_fallback_storyboard(code_analysis)
+        """Generate storyboard using GPT-4 AI with retry logic."""
+        import time
+        import random
+        
+        max_retries = 3
+        base_delay = 2  # Base delay in seconds
+        
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Using GPT-4 for AI-powered storyboard generation (attempt {attempt + 1}/{max_retries})")
+                
+                # Prepare the prompt
+                prompt = self._create_storyboard_prompt(code_analysis)
+                
+                # Call GPT-4 with different models as fallback
+                models_to_try = [
+                    "gpt-4o-mini",  # More reliable, less rate limited
+                    "gpt-4-turbo",  # Alternative
+                    "gpt-3.5-turbo"  # Most reliable fallback
+                ]
+                
+                model = models_to_try[attempt % len(models_to_try)]
+                
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert in creating 3Blue1Brown-style educational animations. Convert code analysis into visual storyboards with clear visual metaphors and smooth animations."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.7,
+                    max_tokens=4000
+                )
+                
+                # Parse the response
+                storyboard_data = json.loads(response.choices[0].message.content)
+                logger.info(f"Successfully generated AI storyboard with {len(storyboard_data.get('scenes', []))} scenes using {model}")
+                
+                return self._parse_storyboard_response(storyboard_data, code_analysis)
+                
+            except Exception as e:
+                error_msg = str(e)
+                logger.warning(f"Attempt {attempt + 1} failed: {error_msg}")
+                
+                # Check if it's a rate limit error
+                if "429" in error_msg or "rate limit" in error_msg.lower() or "quota" in error_msg.lower():
+                    if attempt < max_retries - 1:
+                        # Exponential backoff with jitter
+                        delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                        logger.info(f"Rate limited. Waiting {delay:.1f} seconds before retry...")
+                        time.sleep(delay)
+                        continue
+                    else:
+                        logger.error("Max retries reached for rate limit. Falling back to rule-based generation.")
+                        break
+                else:
+                    # For other errors, don't retry
+                    logger.error(f"Non-retryable error: {error_msg}")
+                    break
+        
+        logger.info("Falling back to rule-based storyboard generation")
+        return self._generate_fallback_storyboard(code_analysis)
     
     def _create_storyboard_prompt(self, code_analysis: Dict[str, Any]) -> str:
         """Create the prompt for GPT-4 storyboard generation."""
@@ -253,6 +286,105 @@ class StoryboardGenerator:
             total_duration=storyboard_data.get('total_duration', 60.0),
             metadata=storyboard_data.get('metadata', {})
         )
+    
+    def _get_file_structure(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract file structure information from code analysis."""
+        files = code_analysis.get('files', {})
+        
+        # Analyze file structure
+        file_types = {}
+        directories = set()
+        
+        for file_path in files.keys():
+            if isinstance(file_path, str):
+                # Extract directory structure
+                parts = file_path.split('/')
+                if len(parts) > 1:
+                    main_dir = parts[-2] if len(parts) > 2 else parts[0]
+                    directories.add(main_dir)
+                
+                # Extract file extension
+                ext = file_path.split('.')[-1] if '.' in file_path else 'unknown'
+                file_types[ext] = file_types.get(ext, 0) + 1
+        
+        return {
+            'directories': list(directories),
+            'file_types': file_types,
+            'total_directories': len(directories),
+            'total_file_types': len(file_types)
+        }
+    
+    def _get_complexity_metrics(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract complexity metrics from code analysis."""
+        files = code_analysis.get('files', {})
+        
+        total_lines = 0
+        total_functions = 0
+        total_classes = 0
+        
+        for file_info in files.values():
+            total_lines += file_info.get('lines', 0)
+            total_functions += len(file_info.get('functions', []))
+            total_classes += len(file_info.get('classes', []))
+        
+        avg_function_length = total_lines / total_functions if total_functions > 0 else 0
+        
+        return {
+            'total_lines': total_lines,
+            'total_functions': total_functions,
+            'total_classes': total_classes,
+            'avg_function_length': round(avg_function_length, 1),
+            'avg_lines_per_file': round(total_lines / len(files), 1) if files else 0
+        }
+    
+    def _get_functions_list(self, code_analysis: Dict[str, Any]) -> List[str]:
+        """Extract list of function names from code analysis."""
+        files = code_analysis.get('files', {})
+        functions = []
+        
+        for file_info in files.values():
+            for func in file_info.get('functions', []):
+                if isinstance(func, dict) and 'name' in func:
+                    functions.append(func['name'])
+                elif isinstance(func, str):
+                    functions.append(func)
+        
+        return functions[:10]  # Limit to 10 functions
+    
+    def _get_data_structures(self, code_analysis: Dict[str, Any]) -> List[str]:
+        """Extract data structures information from code analysis."""
+        # This is a simplified extraction - in a real implementation,
+        # you would analyze the code for data structure usage
+        return ['lists', 'dictionaries', 'sets', 'tuples']  # Default data structures
+    
+    def _get_scene_metadata(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Get standardized metadata for all scenes."""
+        files = code_analysis.get('files', {})
+        
+        # Calculate totals
+        total_files = len(files)
+        total_lines = sum(file_info.get('lines', 0) for file_info in files.values())
+        total_functions = sum(len(file_info.get('functions', [])) for file_info in files.values())
+        total_classes = sum(len(file_info.get('classes', [])) for file_info in files.values())
+        languages = set(file_info.get('language', 'unknown') for file_info in files.values() if file_info.get('language') != 'unknown')
+        
+        # Get additional data
+        file_structure = self._get_file_structure(code_analysis)
+        complexity_metrics = self._get_complexity_metrics(code_analysis)
+        functions_list = self._get_functions_list(code_analysis)
+        data_structures = self._get_data_structures(code_analysis)
+        
+        return {
+            'files': total_files,
+            'languages': list(languages),
+            'lines_of_code': total_lines,
+            'functions': total_functions,
+            'classes': total_classes,
+            'file_structure': file_structure,
+            'complexity': complexity_metrics,
+            'functions_list': functions_list,
+            'data_structures': data_structures
+        }
     
     def _generate_fallback_storyboard(self, code_analysis: Dict[str, Any]) -> Storyboard:
         """Generate detailed storyboard using rule-based approach when AI is not available."""
@@ -541,17 +673,38 @@ class StoryboardGenerator:
         files = code_analysis.get('files', {})
         total_files = len(files)
         
-        # Extract key metrics
+        logger.info(f"Creating intro scene with {total_files} files")
+        
+        # Extract key metrics with detailed logging
         languages = set()
         total_lines = 0
         functions = 0
         classes = 0
         
-        for file_info in files.values():
-            languages.add(file_info.get('language', 'unknown'))
-            total_lines += file_info.get('lines', 0)
-            functions += len(file_info.get('functions', []))
-            classes += len(file_info.get('classes', []))
+        for file_path, file_info in files.items():
+            lang = file_info.get('language', 'unknown')
+            if lang != 'unknown':
+                languages.add(lang)
+                logger.info(f"Found language '{lang}' in file: {file_path}")
+            
+            lines = file_info.get('lines', 0)
+            total_lines += lines
+            
+            funcs = len(file_info.get('functions', []))
+            functions += funcs
+            
+            cls = len(file_info.get('classes', []))
+            classes += cls
+            
+            logger.debug(f"File {file_path}: {lang}, {lines} lines, {funcs} functions, {cls} classes")
+        
+        logger.info(f"Total metrics: {len(languages)} languages ({list(languages)}), {total_lines} lines, {functions} functions, {classes} classes")
+        
+        # Get additional data for metadata
+        file_structure = self._get_file_structure(code_analysis)
+        complexity_metrics = self._get_complexity_metrics(code_analysis)
+        functions_list = self._get_functions_list(code_analysis)
+        data_structures = self._get_data_structures(code_analysis)
         
         visual_elements = [
             VisualElement(
@@ -616,25 +769,46 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"Welcome to our comprehensive analysis of this code repository. We've analyzed {total_files} files across {len(languages)} programming languages, containing {total_lines:,} lines of code with {functions} functions and {classes} classes. Let's dive deep into the codebase structure, algorithms, and execution flow.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=75.0, theta=-45.0, zoom=1.3, duration=3.0)
+            camera_movement=CameraMovement(phi=75.0, theta=-45.0, zoom=1.3, duration=3.0),
+            metadata={
+                'files': total_files,
+                'languages': list(languages),
+                'lines_of_code': total_lines,
+                'functions': functions,
+                'classes': classes,
+                'file_structure': self._get_file_structure(code_analysis),
+                'complexity': self._get_complexity_metrics(code_analysis),
+                'functions_list': self._get_functions_list(code_analysis),
+                'data_structures': self._get_data_structures(code_analysis)
+            }
         )
     
     def _create_file_structure_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene showing file structure and organization."""
         files = code_analysis.get('files', {})
         
-        # Analyze file structure
+        logger.info(f"Creating file structure scene with {len(files)} files")
+        
+        # Analyze file structure with detailed logging
         file_types = {}
         directories = set()
         
         for file_path in files.keys():
             if isinstance(file_path, str):
+                # Extract directory structure
                 parts = file_path.split('/')
                 if len(parts) > 1:
-                    directories.add(parts[0])
+                    # Get the main directory (second to last part for nested structures)
+                    main_dir = parts[-2] if len(parts) > 2 else parts[0]
+                    directories.add(main_dir)
+                    logger.debug(f"Found directory: {main_dir} from path: {file_path}")
                 
+                # Extract file extension
                 ext = file_path.split('.')[-1] if '.' in file_path else 'unknown'
                 file_types[ext] = file_types.get(ext, 0) + 1
+                logger.debug(f"Found file type: .{ext} from path: {file_path}")
+        
+        logger.info(f"File structure analysis: {len(directories)} directories ({list(directories)}), {len(file_types)} file types ({list(file_types.keys())})")
         
         # Create visual elements for file structure
         visual_elements = [
@@ -673,6 +847,19 @@ class StoryboardGenerator:
             AnimationStep("Scale", "text", 2.0, parameters={"scale": 1.05, "target": "📂 File Structure Analysis"})
         ]
         
+        # Get metadata for this scene
+        file_structure = self._get_file_structure(code_analysis)
+        complexity_metrics = self._get_complexity_metrics(code_analysis)
+        functions_list = self._get_functions_list(code_analysis)
+        data_structures = self._get_data_structures(code_analysis)
+        
+        # Calculate totals for metadata
+        total_files = len(files)
+        total_lines = sum(file_info.get('lines', 0) for file_info in files.values())
+        total_functions = sum(len(file_info.get('functions', [])) for file_info in files.values())
+        total_classes = sum(len(file_info.get('classes', [])) for file_info in files.values())
+        languages = set(file_info.get('language', 'unknown') for file_info in files.values() if file_info.get('language') != 'unknown')
+        
         return StoryboardScene(
             id=scene_id,
             concept="File Structure & Organization",
@@ -680,18 +867,37 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"The repository contains {len(directories)} main directories and {len(file_types)} different file types. The codebase is well-organized with clear separation of concerns across different modules and components.",
             duration=10.0,
-            camera_movement=CameraMovement(phi=60.0, theta=-30.0, zoom=1.4, duration=2.0)
+            camera_movement=CameraMovement(phi=60.0, theta=-30.0, zoom=1.4, duration=2.0),
+            metadata={
+                'files': total_files,
+                'languages': list(languages),
+                'lines_of_code': total_lines,
+                'functions': total_functions,
+                'classes': total_classes,
+                'file_structure': file_structure,
+                'complexity': complexity_metrics,
+                'functions_list': functions_list,
+                'data_structures': data_structures
+            }
         )
     
     def _create_language_analysis_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene showing programming language distribution."""
         files = code_analysis.get('files', {})
         
-        # Count languages
+        logger.info(f"Creating language analysis scene with {len(files)} files")
+        
+        # Count languages with detailed logging
         language_counts = {}
-        for file_info in files.values():
+        for file_path, file_info in files.items():
             lang = file_info.get('language', 'unknown')
-            language_counts[lang] = language_counts.get(lang, 0) + 1
+            if lang != 'unknown':
+                language_counts[lang] = language_counts.get(lang, 0) + 1
+                logger.debug(f"Found language '{lang}' in file: {file_path}")
+            else:
+                logger.warning(f"Unknown language for file: {file_path}")
+        
+        logger.info(f"Language distribution: {language_counts}")
         
         # Create pie chart visualization
         visual_elements = [
@@ -726,6 +932,19 @@ class StoryboardGenerator:
             AnimationStep("Rotate", "pie_chart", 2.0, parameters={"angle": 360})
         ]
         
+        # Get metadata for this scene
+        file_structure = self._get_file_structure(code_analysis)
+        complexity_metrics = self._get_complexity_metrics(code_analysis)
+        functions_list = self._get_functions_list(code_analysis)
+        data_structures = self._get_data_structures(code_analysis)
+        
+        # Calculate totals for metadata
+        total_files = len(files)
+        total_lines = sum(file_info.get('lines', 0) for file_info in files.values())
+        total_functions = sum(len(file_info.get('functions', [])) for file_info in files.values())
+        total_classes = sum(len(file_info.get('classes', [])) for file_info in files.values())
+        languages = set(file_info.get('language', 'unknown') for file_info in files.values() if file_info.get('language') != 'unknown')
+        
         return StoryboardScene(
             id=scene_id,
             concept="Language Distribution Analysis",
@@ -733,7 +952,18 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"The codebase uses {len(language_counts)} different programming languages. This multi-language approach allows for optimal performance and functionality across different components of the system.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=45.0, theta=0.0, zoom=1.5, duration=2.0)
+            camera_movement=CameraMovement(phi=45.0, theta=0.0, zoom=1.5, duration=2.0),
+            metadata={
+                'files': total_files,
+                'languages': list(languages),
+                'lines_of_code': total_lines,
+                'functions': total_functions,
+                'classes': total_classes,
+                'file_structure': file_structure,
+                'complexity': complexity_metrics,
+                'functions_list': functions_list,
+                'data_structures': data_structures
+            }
         )
     
     def _create_detailed_complexity_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -797,7 +1027,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"The codebase has an average cyclomatic complexity of {avg_complexity:.1f}, with {complex_functions} functions exceeding the recommended complexity threshold. This indicates areas that may benefit from refactoring for better maintainability.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=60.0, theta=-45.0, zoom=1.3, duration=2.0)
+            camera_movement=CameraMovement(phi=60.0, theta=-45.0, zoom=1.3, duration=2.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_call_graph_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -851,7 +1082,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"The function call graph shows the relationships between {len(function_nodes)} functions across the codebase. This visualization helps understand the dependencies and coupling between different components of the system.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=75.0, theta=0.0, zoom=1.2, duration=3.0)
+            camera_movement=CameraMovement(phi=75.0, theta=0.0, zoom=1.2, duration=3.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_ast_visualization_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -903,7 +1135,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration="The Abstract Syntax Tree shows the hierarchical structure of the code. Each node represents a different syntactic element, from modules and classes down to individual statements and expressions. This tree structure is fundamental to understanding how the code is parsed and executed.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=60.0, theta=-30.0, zoom=1.4, duration=2.0)
+            camera_movement=CameraMovement(phi=60.0, theta=-30.0, zoom=1.4, duration=2.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_execution_flow_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -956,7 +1189,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"This execution flow shows how algorithms in the codebase process data step by step. Each node represents a function or operation, and the arrows show the control flow between different parts of the system.",
             duration=12.0,
-            camera_movement=CameraMovement(phi=45.0, theta=-45.0, zoom=1.3, duration=2.0)
+            camera_movement=CameraMovement(phi=45.0, theta=-45.0, zoom=1.3, duration=2.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_detailed_data_structure_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -1011,7 +1245,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"The codebase utilizes various data structures including {', '.join(data_structures)}. Each data structure is optimized for specific operations and use cases within the system.",
             duration=15.0,
-            camera_movement=CameraMovement(phi=60.0, theta=0.0, zoom=1.5, duration=3.0)
+            camera_movement=CameraMovement(phi=60.0, theta=0.0, zoom=1.5, duration=3.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_performance_analysis_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -1061,7 +1296,8 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"Performance analysis reveals {total_functions} functions with an average length of {avg_function_length:.1f} lines. These metrics help identify opportunities for optimization and refactoring.",
             duration=10.0,
-            camera_movement=CameraMovement(phi=45.0, theta=-30.0, zoom=1.4, duration=2.0)
+            camera_movement=CameraMovement(phi=45.0, theta=-30.0, zoom=1.4, duration=2.0),
+            metadata=self._get_scene_metadata(code_analysis)
         )
     
     def _create_detailed_summary_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
@@ -1122,5 +1358,6 @@ class StoryboardGenerator:
             animation_sequence=animation_sequence,
             narration=f"This comprehensive analysis has revealed a well-structured codebase with {total_files} files across {len(languages)} languages, containing {total_lines:,} lines of code. The system demonstrates good architectural patterns with {functions} functions and {classes} classes, making it maintainable and scalable for future development.",
             duration=15.0,
-            camera_movement=CameraMovement(phi=75.0, theta=-45.0, zoom=1.2, duration=3.0)
+            camera_movement=CameraMovement(phi=75.0, theta=-45.0, zoom=1.2, duration=3.0),
+            metadata=self._get_scene_metadata(code_analysis)
         ) 

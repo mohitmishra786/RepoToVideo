@@ -397,14 +397,33 @@ if __name__ == "__main__":
             return self._generate_generic_content(storyboard_scene, repo_data)
     
     def _extract_repository_data(self, storyboard_scene: StoryboardScene) -> dict:
-        """Extract repository data from storyboard scene."""
+        """Extract repository data from storyboard scene metadata."""
+        # Get data from scene metadata if available
+        metadata = getattr(storyboard_scene, 'metadata', {})
+        
+        if metadata:
+            logger.info(f"Using metadata for scene {storyboard_scene.id}: {metadata}")
+            return {
+                'files': metadata.get('files', 0),
+                'languages': metadata.get('languages', []),
+                'lines_of_code': metadata.get('lines_of_code', 0),
+                'functions': metadata.get('functions', 0),
+                'classes': metadata.get('classes', 0),
+                'file_structure': metadata.get('file_structure', {}),
+                'complexity': metadata.get('complexity', {}),
+                'functions_list': metadata.get('functions_list', []),
+                'data_structures': metadata.get('data_structures', [])
+            }
+        
+        # Fallback to parsing narration if no metadata
+        logger.warning(f"No metadata found for scene {storyboard_scene.id}, falling back to narration parsing")
         data = {
             'files': 0,
             'languages': [],
             'lines_of_code': 0,
             'functions': 0,
             'classes': 0,
-            'file_structure': [],
+            'file_structure': {},
             'complexity': {'avg': 0, 'max': 0},
             'functions_list': [],
             'data_structures': []
