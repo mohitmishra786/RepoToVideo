@@ -680,13 +680,13 @@ if __name__ == "__main__":
         for func_name, pos in called_funcs:
             # Convert numpy array to Manim vector notation
             if hasattr(pos, '__iter__'):
-                pos_str = f"np.array({list(pos)})"
+                pos_str = f"np.array([{pos[0]}, {pos[1]}, {pos[2]}])"
             else:
                 pos_str = str(pos)
             func_nodes_code.append(f'''
-            node = Circle(radius=0.2, color=GREEN, fill_opacity=0.7).move_to({pos_str})
-            label = Text("{func_name}", font_size=12, color=WHITE).move_to({pos_str})
-            func_nodes.add(node, label)''')
+        node = Circle(radius=0.2, color=GREEN, fill_opacity=0.7).move_to({pos_str})
+        label = Text("{func_name}", font_size=12, color=WHITE).move_to({pos_str})
+        func_nodes.add(node, label)''')
         
         func_nodes_str = ''.join(func_nodes_code)
         
@@ -745,13 +745,13 @@ if __name__ == "__main__":
         for node_name, pos in nodes:
             # Convert numpy array to Manim vector notation
             if hasattr(pos, '__iter__'):
-                pos_str = f"np.array({list(pos)})"
+                pos_str = f"np.array([{pos[0]}, {pos[1]}, {pos[2]}])"
             else:
                 pos_str = str(pos)
             nodes_code.append(f'''
-            node = Rectangle(width=1.5, height=0.4, color=BLUE, fill_opacity=0.3).move_to({pos_str})
-            label = Text("{node_name}", font_size=16, color=WHITE).move_to({pos_str})
-            ast_nodes.add(node, label)''')
+        node = Rectangle(width=1.5, height=0.4, color=BLUE, fill_opacity=0.3).move_to({pos_str})
+        label = Text("{node_name}", font_size=16, color=WHITE).move_to({pos_str})
+        ast_nodes.add(node, label)''')
         
         nodes_str = ''.join(nodes_code)
         
@@ -811,13 +811,13 @@ if __name__ == "__main__":
         for step_name, pos in steps:
             # Convert numpy array to Manim vector notation
             if hasattr(pos, '__iter__'):
-                pos_str = f"np.array({list(pos)})"
+                pos_str = f"np.array([{pos[0]}, {pos[1]}, {pos[2]}])"
             else:
                 pos_str = str(pos)
             steps_code.append(f'''
-            node = Circle(radius=0.3, color=ORANGE, fill_opacity=0.7).move_to({pos_str})
-            label = Text("{step_name}", font_size=14, color=WHITE).move_to({pos_str})
-            flow_nodes.add(node, label)''')
+        node = Circle(radius=0.3, color=ORANGE, fill_opacity=0.7).move_to({pos_str})
+        label = Text("{step_name}", font_size=14, color=WHITE).move_to({pos_str})
+        flow_nodes.add(node, label)''')
         
         steps_str = ''.join(steps_code)
         

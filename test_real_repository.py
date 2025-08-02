@@ -69,17 +69,33 @@ def analyze_github_repo(repo_url: str, output_dir: str = "real_repo_output"):
         print(f"   Languages: {code_analysis.get('languages', [])}")
         print(f"   Total lines: {code_analysis.get('total_lines', 0)}")
         
-        # Show some file details
+        # Show detailed file analysis
         files = code_analysis.get('files', {})
         if files:
-            print("\n📁 Sample Files:")
-            file_list = list(files.items())[:5]  # Show first 5 files
-            for i, (file_path, file_info) in enumerate(file_list):
-                print(f"   {i+1}. {file_path} ({file_info.get('language', 'Unknown')})")
-                if file_info.get('algorithms'):
-                    print(f"      Algorithms: {', '.join(file_info['algorithms'])}")
-                if file_info.get('data_structures'):
-                    print(f"      Data Structures: {', '.join(file_info['data_structures'])}")
+            print(f"\n📁 Detailed File Analysis ({len(files)} files):")
+            
+            successful_files = 0
+            failed_files = 0
+            
+            for i, (file_path, file_info) in enumerate(files.items()):
+                language = file_info.get('language', 'Unknown')
+                lines = file_info.get('lines', 0)
+                functions = len(file_info.get('functions', []))
+                classes = len(file_info.get('classes', []))
+                has_error = 'analysis_error' in file_info
+                
+                if has_error:
+                    failed_files += 1
+                    print(f"   ❌ {i+1}. {file_path} ({language}) - {lines} lines, {functions} functions, {classes} classes")
+                    print(f"      Error: {file_info.get('analysis_error', 'Unknown error')}")
+                else:
+                    successful_files += 1
+                    print(f"   ✅ {i+1}. {file_path} ({language}) - {lines} lines, {functions} functions, {classes} classes")
+            
+            print(f"\n📈 Analysis Results:")
+            print(f"   ✅ Successfully analyzed: {successful_files} files")
+            print(f"   ❌ Failed to analyze: {failed_files} files")
+            print(f"   📊 Success rate: {(successful_files/len(files)*100):.1f}%")
         
         # Generate storyboard
         print("\n🎬 Generating storyboard...")
