@@ -31,6 +31,7 @@ from .core.storyboard_generator import StoryboardGenerator
 from .core.execution_capture import RuntimeStateCapture
 from .visualizations.visual_metaphors import VisualMetaphorLibrary
 from .rendering.manim_scene import AdvancedManimScene, ManimSceneRenderer
+from .rendering.video_merger import VideoMerger
 
 class AdvancedAnimationSystem:
     """Main orchestrator for the advanced animation system."""
@@ -47,6 +48,7 @@ class AdvancedAnimationSystem:
         self.storyboard_generator = StoryboardGenerator(openai_api_key)
         self.execution_capture = RuntimeStateCapture()
         self.scene_renderer = ManimSceneRenderer(output_dir)
+        self.video_merger = VideoMerger(output_dir)
         self.visual_library = VisualMetaphorLibrary()
         
         logger.info("AdvancedAnimationSystem initialized")
@@ -112,18 +114,25 @@ class AdvancedAnimationSystem:
             logger.error(f"Error adding execution traces: {e}")
     
     def _combine_videos(self, video_files: List[str]) -> str:
-        """Combine multiple video files into one."""
+        """Combine multiple video files into one using VideoMerger."""
         try:
-            # For now, just return the first video
-            # In practice, you'd use MoviePy to concatenate videos
-            if video_files:
-                return video_files[0]
+            if not video_files:
+                logger.warning("No video files to combine")
+                return ""
+            
+            # Use the video merger to combine all scenes
+            final_video_path = self.video_merger.merge_scenes(video_files)
+            
+            if final_video_path:
+                logger.info(f"Successfully combined {len(video_files)} videos into: {final_video_path}")
+                return final_video_path
             else:
-                raise Exception("No video files to combine")
+                logger.error("Failed to combine videos")
+                return video_files[0] if video_files else ""
                 
         except Exception as e:
             logger.error(f"Error combining videos: {e}")
-            raise
+            return video_files[0] if video_files else ""
     
     def save_storyboard(self, storyboard: Storyboard, filename: str = "storyboard.json") -> str:
         """Save storyboard to file."""
