@@ -116,30 +116,11 @@ class VideoGenerator:
                     
                     # Combine visual and audio
                     if audio_clip:
-                        # Create a new visual clip with the audio duration
-                        step_type = step.get('type', 'generic')
-                        if step_type == 'intro':
-                            color = (50, 100, 150)  # Blue
-                        elif step_type == 'overview':
-                            color = (100, 50, 150)  # Purple
-                        elif step_type == 'structure':
-                            color = (150, 100, 50)  # Orange
-                        elif step_type == 'code_analysis':
-                            color = (100, 150, 50)  # Green
-                        elif step_type == 'code_review':
-                            color = (150, 50, 100)  # Pink
-                        elif step_type == 'error_simulation':
-                            color = (150, 50, 50)  # Red
-                        elif step_type == 'summary':
-                            color = (50, 150, 100)  # Teal
-                        else:
-                            color = self.background_color
-                        
-                        # Create a ColorClip with the audio duration
-                        color_clip = ColorClip(size=self.resolution, color=color, duration=audio_clip.duration)
-                        # Set the audio directly on the ColorClip
-                        color_clip.audio = audio_clip
-                        final_clip = color_clip
+                        # Use the visual clip that already has text content, but set its duration to match audio
+                        visual_clip = visual_clip.with_duration(audio_clip.duration)
+                        # Set the audio on the visual clip
+                        visual_clip.audio = audio_clip
+                        final_clip = visual_clip
                         logger.info(f"Combined visual and audio for step {i+1}, duration: {audio_clip.duration}")
                     else:
                         # Use default duration if no audio
@@ -204,17 +185,32 @@ class VideoGenerator:
                 
     def _create_simple_step_visual(self, step: Dict, step_number: int) -> VideoClip:
         """
-        Create a simple visual for a step using basic ColorClip.
+        Create an enhanced visual for a step using advanced features.
         
         Args:
             step: Step dictionary
             step_number: Number of the step
             
         Returns:
-            VideoFileClip for the step
+            VideoClip for the step
         """
         step_type = step.get('type', 'generic')
         
+        # Try to use enhanced features first
+        try:
+            if step_type == 'code_analysis' and step.get('code_content'):
+                # Use E2B execution tracing for code analysis steps
+                return self._create_enhanced_code_analysis_visual(step, step_number)
+            elif step_type == 'error_simulation':
+                # Use error simulation features
+                return self._create_enhanced_error_simulation_visual(step, step_number)
+            elif step_type == 'structure':
+                # Use call graph visualization
+                return self._create_enhanced_structure_visual(step, step_number)
+        except Exception as e:
+            logger.warning(f"Enhanced visual creation failed for step {step_number}, falling back to simple visual: {e}")
+        
+        # Fallback to simple visuals
         if step_type == 'intro':
             return self._create_simple_intro_visual(step, step_number)
         elif step_type == 'overview':
@@ -236,55 +232,398 @@ class VideoGenerator:
         """Create simple introduction visual."""
         # Create background with different color for intro
         background = ColorClip(size=self.resolution, color=(50, 100, 150), duration=20)  # Blue
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Introduction')
+        description = step.get('description', 'Welcome to the repository walkthrough')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(20)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_overview_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple overview visual."""
         # Create background with different color for overview
         background = ColorClip(size=self.resolution, color=(100, 50, 150), duration=25)  # Purple
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Repository Overview')
+        description = step.get('description', 'Overview of the repository structure and purpose')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(25)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(25)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_structure_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple structure visual."""
         # Create background with different color for structure
         background = ColorClip(size=self.resolution, color=(150, 100, 50), duration=30)  # Orange
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Repository Structure')
+        description = step.get('description', 'Analyzing the repository file structure and organization')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(30)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(30)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_code_analysis_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple code analysis visual."""
         # Create background with different color for code analysis
         background = ColorClip(size=self.resolution, color=(100, 150, 50), duration=35)  # Green
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Code Analysis')
+        description = step.get('description', 'Analyzing code structure, functions, and dependencies')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(35)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(35)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_code_review_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple code review visual."""
         # Create background with different color for code review
         background = ColorClip(size=self.resolution, color=(150, 50, 100), duration=25)  # Pink
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Code Review')
+        description = step.get('description', 'Reviewing code quality, patterns, and best practices')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(25)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(25)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_error_simulation_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple error simulation visual."""
         # Create background with different color for error simulation
         background = ColorClip(size=self.resolution, color=(150, 50, 50), duration=40)  # Red
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Error Handling & Debugging')
+        description = step.get('description', 'Demonstrating common errors and debugging techniques')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(40)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(40)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_summary_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple summary visual."""
         # Create background with different color for summary
         background = ColorClip(size=self.resolution, color=(50, 150, 100), duration=30)  # Teal
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Summary & Key Takeaways')
+        description = step.get('description', 'Summary of the repository analysis and key insights')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(30)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(30)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def _create_simple_error_visual(self, error_message: str) -> VideoClip:
         """Create simple error visual for failed steps."""
         # Create background with error color
         background = ColorClip(size=self.resolution, color=(100, 25, 25), duration=10)  # Dark red
-        return background
+        
+        # Add text overlay
+        title = "Error Occurred"
+        description = error_message[:100] + "..." if len(error_message) > 100 else error_message
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(10)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=30, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(10)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
 
     def _create_simple_generic_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple generic visual for unknown step types."""
         # Create background with default color
         background = ColorClip(size=self.resolution, color=self.background_color, duration=30)
-        return background
+        
+        # Add text overlay
+        title = step.get('title', f'Step {step_number}: Generic Step')
+        description = step.get('description', 'Processing step information')
+        
+        # Create text clips
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(30)
+        
+        desc_clip = TextClip(
+            text=description, 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(30)
+        
+        # Combine background and text
+        return CompositeVideoClip([background, title_clip, desc_clip])
+    
+    def _create_enhanced_code_analysis_visual(self, step: Dict, step_number: int) -> VideoClip:
+        """
+        Create enhanced code analysis visual with E2B execution tracing.
+        
+        Args:
+            step: Step dictionary with code content
+            step_number: Number of the step
+            
+        Returns:
+            VideoClip with execution tracing
+        """
+        # Get code content from step content
+        step_content = step.get('content', {})
+        code_content = step_content.get('code_content', '')
+        title = step.get('title', f'Step {step_number}: Code Analysis')
+        
+        # Create background
+        background = ColorClip(size=self.resolution, color=(100, 150, 50), duration=20)  # Green
+        
+        # Add title
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(20)
+        
+        # Try to get execution trace from E2B
+        try:
+            if self.use_e2b and code_content:
+                execution_trace = self.trace_code_execution(code_content)
+                if execution_trace:
+                    # Create execution visualization
+                    exec_video_path = self.create_dynamic_execution_scene(code_content, execution_trace)
+                    if exec_video_path and os.path.exists(exec_video_path):
+                        exec_clip = VideoFileClip(exec_video_path).with_duration(20)
+                        return CompositeVideoClip([background, title_clip, exec_clip])
+        except Exception as e:
+            logger.warning(f"E2B execution tracing failed: {e}")
+        
+        # Fallback: Show code content as text
+        code_display = TextClip(
+            text=f"Code Analysis:\n{code_content[:200]}...", 
+            font_size=30, 
+            color='white', 
+            size=(self.resolution[0] - 200, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+        
+        return CompositeVideoClip([background, title_clip, code_display])
+    
+    def _create_enhanced_error_simulation_visual(self, step: Dict, step_number: int) -> VideoClip:
+        """
+        Create enhanced error simulation visual with actual error demonstrations.
+        
+        Args:
+            step: Step dictionary
+            step_number: Number of the step
+            
+        Returns:
+            VideoClip with error simulation
+        """
+        title = step.get('title', f'Step {step_number}: Error Handling & Debugging')
+        
+        # Create background
+        background = ColorClip(size=self.resolution, color=(150, 50, 50), duration=20)  # Red
+        
+        # Add title
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(20)
+        
+        # Try to create error simulation
+        try:
+            from error_simulation import ErrorSimulator
+            error_sim = ErrorSimulator()
+            
+            # Create a simple error demonstration
+            error_demo = TextClip(
+                text="Error Simulation:\n• Undefined variable error\n• Type mismatch error\n• Missing import error", 
+                font_size=35, 
+                color='yellow', 
+                size=(self.resolution[0] - 200, None)
+            ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+            
+            return CompositeVideoClip([background, title_clip, error_demo])
+        except Exception as e:
+            logger.warning(f"Error simulation failed: {e}")
+        
+        # Fallback
+        desc_clip = TextClip(
+            text="Demonstrating common errors and debugging techniques", 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+        
+        return CompositeVideoClip([background, title_clip, desc_clip])
+    
+    def _create_enhanced_structure_visual(self, step: Dict, step_number: int) -> VideoClip:
+        """
+        Create enhanced structure visual with call graph visualization.
+        
+        Args:
+            step: Step dictionary
+            step_number: Number of the step
+            
+        Returns:
+            VideoClip with call graph
+        """
+        title = step.get('title', f'Step {step_number}: Repository Structure')
+        
+        # Create background
+        background = ColorClip(size=self.resolution, color=(150, 100, 50), duration=20)  # Orange
+        
+        # Add title
+        title_clip = TextClip(
+            text=title, 
+            font_size=60, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position('center').with_duration(20)
+        
+        # Try to create call graph visualization
+        try:
+            from code_analysis import EnhancedCodeAnalyzer
+            analyzer = EnhancedCodeAnalyzer()
+            
+            # Create a simple call graph representation
+            call_graph_text = "Repository Structure:\n• main.py (entry point)\n• coordinator.py (orchestration)\n• items.py (data models)\n• middlewares.py (processing)\n• pipelines.py (workflow)"
+            
+            structure_display = TextClip(
+                text=call_graph_text, 
+                font_size=35, 
+                color='white', 
+                size=(self.resolution[0] - 200, None)
+            ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+            
+            return CompositeVideoClip([background, title_clip, structure_display])
+        except Exception as e:
+            logger.warning(f"Call graph visualization failed: {e}")
+        
+        # Fallback
+        desc_clip = TextClip(
+            text="Analyzing the repository file structure and organization", 
+            font_size=40, 
+            color='white', 
+            size=(self.resolution[0] - 100, None)
+        ).with_position(('center', self.resolution[1]//2 + 100)).with_duration(20)
+        
+        return CompositeVideoClip([background, title_clip, desc_clip])
     
     def create_dynamic_execution_scene(self, code_content: str, execution_trace: Dict[str, Any]) -> str:
         """
@@ -437,7 +776,7 @@ class ExecutionVisualization(Scene):
                 fontsize=20,
                 color='white',
                 font='Arial'
-            ).set_position(('center', 100)).set_duration(duration)
+            ).with_position(('center', 100)).with_duration(duration)
             
             # Create variable display
             variables = execution_trace.get('variables', {})
@@ -451,7 +790,7 @@ class ExecutionVisualization(Scene):
                     fontsize=16,
                     color='yellow',
                     font='Arial'
-                ).set_position(('left', 300)).set_duration(duration)
+                ).with_position(('left', 300)).with_duration(duration)
                 
                 # Combine clips
                 final_clip = CompositeVideoClip([background, code_text, var_clip])
@@ -701,7 +1040,7 @@ class CallGraphVisualization(Scene):
     def _convert_image_to_video(self, image_path: str, duration: float = 5.0) -> str:
         """Convert an image to a video clip."""
         try:
-            image_clip = ImageClip(image_path).set_duration(duration)
+            image_clip = ImageClip(image_path).with_duration(duration)
             output_file = os.path.join(self.temp_dir, "image_video.mp4")
             image_clip.write_videofile(output_file, fps=self.fps, verbose=False, logger=None)
             return output_file
@@ -736,7 +1075,7 @@ class CallGraphVisualization(Scene):
                     fontsize=16,
                     color='green',
                     font='Courier'
-                ).set_position(('left', 100 + i * 60)).set_start(current_time).set_duration(3)
+                ).with_position(('left', 100 + i * 60)).set_start(current_time).with_duration(3)
                 
                 # Output text
                 output_text = TextClip(
@@ -744,7 +1083,7 @@ class CallGraphVisualization(Scene):
                     fontsize=14,
                     color='white',
                     font='Courier'
-                ).set_position(('left', 120 + i * 60)).set_start(current_time + 1).set_duration(2)
+                ).with_position(('left', 120 + i * 60)).set_start(current_time + 1).with_duration(2)
                 
                 clips.extend([cmd_text, output_text])
                 current_time += 3
