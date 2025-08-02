@@ -240,6 +240,7 @@ Thumbs.db
 
 # Virtual environment
 rep2vid/
+repo2video/
 env/
 venv/
 .venv/
