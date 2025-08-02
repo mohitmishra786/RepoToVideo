@@ -3,6 +3,7 @@ PyGithub>=2.1.1
 gTTS>=2.4.0
 moviepy>=1.0.3
 manim>=0.18.0
+manimgl>=1.6.1
 markdown>=3.5.1
 requests>=2.31.0
 Pillow>=10.0.0
@@ -15,6 +16,15 @@ ast-comments>=1.0.0
 pycallgraph2>=0.5.1
 pipdeptree>=2.13.0
 e2b-code-interpreter>=0.10.0
+e2b>=0.10.0
 elevenlabs>=0.2.24
 networkx>=3.1
-python-dotenv>=1.0.0 
+python-dotenv>=1.0.0
+openai>=1.0.0
+
+# Advanced animation dependencies
+opencv-python>=4.8.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+plotly>=5.17.0
+kaleido>=0.2.1 
