@@ -13,6 +13,38 @@ RepoToVideo is a complete web application that automatically generates education
 - **Code Highlighting**: Visual emphasis on important code sections
 - **Error Simulation**: Demonstrates common programming errors and fixes
 
+### 🚀 Enhanced Features (NEW!)
+
+#### 1. Enhanced Code Analysis
+- **Call Graph Generation**: Visualize function call relationships using pycallgraph2
+- **Dependency Detection**: Analyze project dependencies via pipdeptree
+- **Error Pattern Identification**: Detect common programming errors using AST inspection
+- **Multi-language Support**: Python, JavaScript, Java with extensible parser architecture
+
+#### 2. Dynamic Execution Visualization
+- **Live Code Execution**: Trace code execution using E2B.dev sandbox
+- **Variable Value Overlays**: Real-time variable state visualization
+- **Terminal Simulation**: Animated terminal command execution
+- **Animated Call Graphs**: Dynamic function call visualization using Manim
+
+#### 3. AI Narration System
+- **ElevenLabs Integration**: High-quality voice synthesis
+- **Context-aware Scripts**: Intelligent narration generation based on code content
+- **Multi-language Support**: Narrate in multiple languages
+- **Audio-Video Sync**: Perfect synchronization between narration and visuals
+
+#### 4. Error Simulation Engine
+- **Educational Error Injection**: Simulate common programming errors
+- **Bug + Solution Animations**: Show both the error and its fix
+- **10 Error Types**: Undefined variables, type mismatches, missing imports, etc.
+- **Safe Execution**: Execute code in isolated sandbox environment
+
+#### 5. Plugin Architecture
+- **Extensible Parser System**: Easy to add support for new languages
+- **Modular Design**: Clean separation of concerns
+- **Performance Optimizations**: Parallel rendering and progressive previews
+- **Hardware Acceleration**: FFmpeg integration for faster video processing
+
 ### 🔍 Repository Analysis
 - **Smart Content Detection**: Automatically identifies main code files and documentation
 - **Structure Analysis**: Analyzes repository organization and file relationships
@@ -39,6 +71,7 @@ RepoToVideo is a complete web application that automatically generates education
 - Python 3.8 or higher
 - Git (for cloning the repository)
 - Internet connection (for GitHub API and TTS services)
+- **Enhanced Features**: ElevenLabs API key (optional), E2B API key (optional)
 
 ### Installation
 
@@ -53,6 +86,15 @@ RepoToVideo is a complete web application that automatically generates education
    pip install -r requirements.txt
    ```
 
+3. **Set up API keys (optional for enhanced features)**
+   ```bash
+   # For AI narration (ElevenLabs)
+   export ELEVENLABS_API_KEY="your_elevenlabs_api_key"
+   
+   # For dynamic execution tracing (E2B)
+   export E2B_API_KEY="your_e2b_api_key"
+   ```
+
 3. **Run the application**
    ```bash
    streamlit run app.py
@@ -60,6 +102,32 @@ RepoToVideo is a complete web application that automatically generates education
 
 4. **Open your browser**
    Navigate to `http://localhost:8501` to access the web interface.
+
+### Enhanced Features Usage
+
+For advanced users, you can also use the enhanced features programmatically:
+
+```python
+from enhanced_example import EnhancedRepoToVideo
+
+# Initialize enhanced system
+enhanced_system = EnhancedRepoToVideo("./your-project")
+
+# Comprehensive project analysis
+analysis = enhanced_system.analyze_project()
+
+# Generate error simulations
+error_simulations = enhanced_system.generate_error_simulations(code_content, num_errors=3)
+
+# Create dynamic visualizations
+viz_path = enhanced_system.create_dynamic_visualization(code_content)
+
+# Generate AI narration
+narrated_content = enhanced_system.generate_narration(content, VoiceStyle.EDUCATIONAL)
+
+# Create call graph visualization
+call_graph_viz = enhanced_system.create_call_graph_visualization(call_graph_data)
+```
 
 ### Usage
 
@@ -83,7 +151,16 @@ RepoToVideo/
 ├── repo_fetcher.py        # GitHub repository fetching and analysis
 ├── step_generator.py      # Step-by-step analysis generation
 ├── voice_generator.py     # Text-to-speech functionality
-├── video_generator.py     # Video creation and rendering
+├── video_generator.py     # Video creation and rendering (enhanced)
+├── code_analysis.py       # Enhanced code analysis with call graphs
+├── error_simulation.py    # Error simulation engine
+├── narration.py           # AI narration system with ElevenLabs
+├── enhanced_example.py    # Comprehensive usage examples
+├── parsers/               # Plugin-based parser architecture
+│   ├── __init__.py        # Parser manager and base classes
+│   ├── python_parser.py   # Python AST parser
+│   ├── javascript_parser.py # JavaScript regex parser
+│   └── java_parser.py     # Java regex parser
 ├── requirements.txt       # Python dependencies
 ├── README.md             # This file
 └── LICENSE               # Project license
