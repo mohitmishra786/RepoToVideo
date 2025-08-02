@@ -41,46 +41,121 @@ except (ImportError, TypeError, AttributeError) as e:
     
     # Create dummy classes for when Manim is not available
     class Scene:
+        """
+            Performs __init__ operation. Function has side effects. Takes self and storyboard_scene as input. Returns a object value.
+            :param self: The self object.
+            :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
+            :return: Value of type object
+
+        """
         def __init__(self):
             pass
         
+        """
+            Adds the add to the collection. Takes self and obj as input. Returns a object value.
+            :param self: The self object.
+            :param obj: The obj object.
+            :return: Value of type object
+
+        """
         def add(self, obj):
             pass
         
+        """
+            Performs play operation. Takes self, animation and run_time as input. Returns a object value.
+            :param self: The self object.
+            :param animation: The animation object.
+            :param run_time: The run_time object.
+            :return: Value of type object
+
+        """
         def play(self, animation, run_time=1):
             pass
         
+        """
+            Waits the value based on self, duration. Takes self and duration as input. Returns a object value.
+            :param self: The self object.
+            :param duration: The duration object.
+            :return: Value of type object
+
+        """
         def wait(self, duration):
             pass
     
     class FadeIn:
+        """
+            Performs __init__ operation. Function has side effects. Takes self and output_dir as input. Returns a object value.
+            :param self: The self object.
+            :param output_dir: The output_dir string.
+            :return: Value of type object
+
+        """
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class FadeOut:
+        """
+            Performs __init__ operation. Takes self as input. Returns a object value.
+            :param self: The self object.
+            :return: Value of type object
+
+        """
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class Create:
+        """
+            Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
+            :param self: The self object.
+            :param target: The target object.
+            :param run_time: The run_time object.
+            :return: Value of type object
+
+        """
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class Scale:
+        """
+            Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
+            :param self: The self object.
+            :param target: The target object.
+            :param run_time: The run_time object.
+            :return: Value of type object
+
+        """
         def __init__(self, target, scale_factor=1.2, run_time=1):
             self.target = target
             self.scale_factor = scale_factor
             self.run_time = run_time
     
     class Indicate:
+        """
+            Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
+            :param self: The self object.
+            :param target: The target object.
+            :param run_time: The run_time object.
+            :return: Value of type object
+
+        """
         def __init__(self, target, run_time=1, **kwargs):
             self.target = target
             self.run_time = run_time
             self.kwargs = kwargs
     
     class Circumscribe:
+        """
+            Performs __init__ operation. Function has side effects. Takes self, target, scale_factor and run_time as input. Returns a object value.
+            :param self: The self object.
+            :param target: The target object.
+            :param scale_factor: The scale_factor object.
+            :param run_time: The run_time object.
+            :return: Value of type object
+
+        """
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
