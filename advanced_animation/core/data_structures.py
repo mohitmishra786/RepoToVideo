@@ -86,6 +86,12 @@ class DataStructureManager:
     """Manager for data structure operations."""
     
     @staticmethod
+"""
+    Saves the storyboard based on storyboard, output_path. Function may throw exceptions, may return early, has side effects, performs file operations. Takes storyboard and output_path as input. Returns a string value.
+    :param storyboard: The storyboard value of type Storyboard.
+    :param output_path: The output_path string.
+    :return: String value
+"""
     def save_storyboard(storyboard: Storyboard, output_path: str) -> str:
         """Save storyboard to JSON file."""
         try:
@@ -103,6 +109,11 @@ class DataStructureManager:
             raise
     
     @staticmethod
+"""
+    Loads the storyboard based on file_path. Function iterates over data, may throw exceptions, may return early, has side effects, performs file operations. Takes file_path as input. Returns a storyboard value.
+    :param file_path: The file_path string.
+    :return: Value of type Storyboard
+"""
     def load_storyboard(file_path: str) -> Storyboard:
         """Load storyboard from JSON file."""
         try:

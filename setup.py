@@ -12,6 +12,10 @@ import platform
 from pathlib import Path
 
 
+"""
+    Performs check_python_version operation. Function conditionally processes input, may return early, has side effects. Returns a object value.
+    :return: Value of type object
+"""
 def check_python_version():
     """Check if Python version is compatible."""
     if sys.version_info < (3, 8):
@@ -22,6 +26,10 @@ def check_python_version():
     return True
 
 
+"""
+    Installs the dependencies. Function may return early, has side effects. Returns a object value.
+    :return: Value of type object
+"""
 def install_dependencies():
     """Install required dependencies."""
     print("📦 Installing dependencies...")
@@ -36,6 +44,10 @@ def install_dependencies():
         return False
 
 
+"""
+    Performs check_system_requirements operation. Function conditionally processes input, has side effects, performs arithmetic operations. Returns a object value.
+    :return: Value of type object
+"""
 def check_system_requirements():
     """Check system requirements."""
     print("🔍 Checking system requirements...")
@@ -63,6 +75,10 @@ def check_system_requirements():
     return True
 
 
+"""
+    Creates a new config instance. Function conditionally processes input, has side effects, performs file operations. Returns a object value.
+    :return: Value of type object
+"""
 def create_config_file():
     """Create a basic configuration file."""
     config_content = """# RepoToVideo Configuration
@@ -93,6 +109,10 @@ TTS_SPEED=normal
         print("ℹ️  config.env already exists")
 
 
+"""
+    Creates a new directories instance. Function iterates over data, has side effects. Returns a object value.
+    :return: Value of type object
+"""
 def create_directories():
     """Create necessary directories."""
     directories = ["output", "temp", "logs"]
@@ -103,6 +123,10 @@ def create_directories():
     print("✅ Created necessary directories")
 
 
+"""
+    Performs test_installation operation. Function conditionally processes input, may return early, has side effects. Returns a object value.
+    :return: Value of type object
+"""
 def test_installation():
     """Test the installation."""
     print("🧪 Testing installation...")
@@ -132,6 +156,10 @@ def test_installation():
         return False
 
 
+"""
+    Performs show_next_steps operation. Function has side effects, performs arithmetic operations. Returns a object value.
+    :return: Value of type object
+"""
 def show_next_steps():
     """Show next steps for the user."""
     print("\n" + "="*50)
@@ -160,6 +188,10 @@ def show_next_steps():
     print("- Ensure stable internet connection for TTS services")
 
 
+"""
+    Performs main operation. Function conditionally processes input, has side effects, performs arithmetic operations. Returns a object value.
+    :return: Value of type object
+"""
 def main():
     """Main setup function."""
     print("🎥 RepoToVideo Setup")

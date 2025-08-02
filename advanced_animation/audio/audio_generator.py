@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 class AudioGenerator:
     """Handles text-to-speech generation using ElevenLabs API."""
     
+"""
+    Performs __init__ operation. Function conditionally processes input, has side effects. Takes self and api_key as input. Returns a object value.
+    :param self: The self object.
+    :param api_key: The api_key value of type Optional[str].
+    :return: Value of type object
+"""
     def __init__(self, api_key: Optional[str] = None):
         """
         Initialize the audio generator.
@@ -46,6 +52,14 @@ class AudioGenerator:
             "use_speaker_boost": True
         }
     
+"""
+    Generates the audio based on self, text, output_path, voice_id. Function conditionally processes input, may return early, has side effects, performs file operations. Takes self, text, output_path and voice_id as input. Returns true or false.
+    :param self: The self object.
+    :param text: The text string.
+    :param output_path: The output_path string.
+    :param voice_id: The voice_id value of type Optional[str].
+    :return: True or false
+"""
     def generate_audio(self, text: str, output_path: str, voice_id: Optional[str] = None) -> bool:
         """
         Generate audio from text using ElevenLabs API.
@@ -107,6 +121,14 @@ class AudioGenerator:
             logger.error(f"Error generating audio: {e}")
             return False
     
+"""
+    Generates the scene based on self, scene_narration, scene_id, output_dir. Function conditionally processes input, may return early, has side effects. Takes self, scene_narration, scene_id and output_dir as input. Returns a optional[str] value.
+    :param self: The self object.
+    :param scene_narration: The scene_narration string.
+    :param scene_id: The scene_id integer.
+    :param output_dir: The output_dir string.
+    :return: Value of type Optional[str]
+"""
     def generate_scene_audio(self, scene_narration: str, scene_id: int, output_dir: str) -> Optional[str]:
         """
         Generate audio for a specific scene.
@@ -130,6 +152,13 @@ class AudioGenerator:
         else:
             return None
     
+"""
+    Generates the storyboard based on self, storyboard, output_dir. Function iterates over data, conditionally processes input, may return early, has side effects. Takes self, storyboard and output_dir as input. Returns a dict[(int, str)] value.
+    :param self: The self object.
+    :param storyboard: The storyboard value of type 'Storyboard'.
+    :param output_dir: The output_dir string.
+    :return: Value of type Dict[(int, str)]
+"""
     def generate_storyboard_audio(self, storyboard: 'Storyboard', output_dir: str) -> Dict[int, str]:
         """
         Generate audio for all scenes in a storyboard.
@@ -159,6 +188,11 @@ class AudioGenerator:
         logger.info(f"Generated audio for {len(audio_files)} scenes")
         return audio_files
     
+"""
+    Retrieves the available. Function conditionally processes input, may return early, has side effects. Takes self as input. Returns a list of values.
+    :param self: The self object.
+    :return: List of values
+"""
     def get_available_voices(self) -> list:
         """
         Get list of available voices from ElevenLabs.
@@ -188,6 +222,11 @@ class AudioGenerator:
             logger.error(f"Error getting voices: {e}")
             return []
     
+"""
+    Performs test_connection operation. Function conditionally processes input, may return early, has side effects. Takes self as input. Returns true or false.
+    :param self: The self object.
+    :return: True or false
+"""
     def test_connection(self) -> bool:
         """
         Test the connection to ElevenLabs API.
