@@ -23,12 +23,6 @@ except ImportError:
 class VideoMerger:
     """Merges multiple scene videos into a single comprehensive video."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self and output_dir as input. Returns a object value.
-    :param self: The self object.
-    :param output_dir: The output_dir string.
-    :return: Value of type object
-"""
     def __init__(self, output_dir: str = "final_video"):
         """
         Initialize the video merger.
@@ -41,13 +35,6 @@ class VideoMerger:
         
         logger.info(f"VideoMerger initialized with output directory: {output_dir}")
     
-"""
-    Merges the scenes based on self, video_files, storyboard_path. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self, video_files and storyboard_path as input. Returns a string value.
-    :param self: The self object.
-    :param video_files: The video_files value of type List[str].
-    :param storyboard_path: The storyboard_path value of type Optional[str].
-    :return: String value
-"""
     def merge_scenes(self, video_files: List[str], storyboard_path: Optional[str] = None) -> str:
         """
         Merge multiple scene videos into a single comprehensive video with audio.
@@ -127,12 +114,6 @@ class VideoMerger:
             logger.error(f"Error merging videos: {e}")
             return self.create_fallback_merge_with_audio(video_files)
     
-"""
-    Loads the storyboard based on self, storyboard_path. Function may return early, has side effects, performs file operations. Takes self and storyboard_path as input. Returns a dictionary of values.
-    :param self: The self object.
-    :param storyboard_path: The storyboard_path string.
-    :return: Dictionary of values
-"""
     def load_storyboard_metadata(self, storyboard_path: str) -> dict:
         """Load metadata from storyboard JSON file."""
         try:
@@ -149,13 +130,6 @@ class VideoMerger:
             logger.error(f"Error loading storyboard metadata: {e}")
             return {}
     
-"""
-    Adds the title to the collection. Function may return early, has side effects. Takes self, video_clip and metadata as input. Returns a object value.
-    :param self: The self object.
-    :param video_clip: The video_clip object.
-    :param metadata: The metadata dictionary.
-    :return: Value of type object
-"""
     def add_title_and_metadata(self, video_clip, metadata: dict):
         """Add title and metadata overlay to the video."""
         try:
@@ -186,12 +160,6 @@ class VideoMerger:
             logger.error(f"Error adding title and metadata: {e}")
             return video_clip
     
-"""
-    Creates a new fallback instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations, performs file operations. Takes self and video_files as input. Returns a string value.
-    :param self: The self object.
-    :param video_files: The video_files value of type List[str].
-    :return: String value
-"""
     def create_fallback_merge(self, video_files: List[str]) -> str:
         """Create a fallback merged video using ffmpeg."""
         try:
@@ -232,12 +200,6 @@ class VideoMerger:
             logger.error(f"Error in fallback merge: {e}")
             return ""
 
-"""
-    Creates a new fallback instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations, performs file operations. Takes self and video_files as input. Returns a string value.
-    :param self: The self object.
-    :param video_files: The video_files value of type List[str].
-    :return: String value
-"""
     def create_fallback_merge_with_audio(self, video_files: List[str]) -> str:
         """Create a fallback merged video with audio using ffmpeg."""
         try:
@@ -341,12 +303,6 @@ class VideoMerger:
             logger.error(f"Error in fallback merge with audio: {e}")
             return self.create_fallback_merge(video_files)  # Fall back to video-only
     
-"""
-    Creates a new scene instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and clips as input. Returns a list of values.
-    :param self: The self object.
-    :param clips: The clips list.
-    :return: List of values
-"""
     def create_scene_transitions(self, clips: List) -> List:
         """Add smooth transitions between scenes."""
         try:

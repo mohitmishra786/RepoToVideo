@@ -27,12 +27,6 @@ logger = logging.getLogger(__name__)
 class StoryboardGenerator:
     """AI-powered storyboard generator using GPT-4."""
     
-"""
-    Performs __init__ operation. Function conditionally processes input, has side effects. Takes self and openai_api_key as input. Returns a object value.
-    :param self: The self object.
-    :param openai_api_key: The openai_api_key value of type Optional[str].
-    :return: Value of type object
-"""
     def __init__(self, openai_api_key: Optional[str] = None):
         """
         Initialize the storyboard generator.
@@ -89,12 +83,6 @@ class StoryboardGenerator:
         
         logger.info("StoryboardGenerator initialized with visual metaphor library")
         
-"""
-    Generates the storyboard based on self, code_analysis. Function conditionally processes input, may return early, has side effects. Takes self and code_analysis as input. Returns a storyboard value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Storyboard
-"""
     def generate_storyboard(self, code_analysis: Dict[str, Any]) -> Storyboard:
         """
         Convert code analysis into visual storyboard using GPT-4.
@@ -112,12 +100,6 @@ class StoryboardGenerator:
         else:
             return self._generate_fallback_storyboard(code_analysis)
     
-"""
-    Performs _generate_ai_storyboard operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_analysis as input. Returns a storyboard value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Storyboard
-"""
     def _generate_ai_storyboard(self, code_analysis: Dict[str, Any]) -> Storyboard:
         """Generate storyboard using GPT-4 AI with retry logic."""
         import time
@@ -188,12 +170,6 @@ class StoryboardGenerator:
         logger.info("Falling back to rule-based storyboard generation")
         return self._generate_fallback_storyboard(code_analysis)
     
-"""
-    Performs _create_storyboard_prompt operation. Function has side effects. Takes self and code_analysis as input. Returns a string value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: String value
-"""
     def _create_storyboard_prompt(self, code_analysis: Dict[str, Any]) -> str:
         """Create the prompt for GPT-4 storyboard generation."""
         
@@ -270,13 +246,6 @@ class StoryboardGenerator:
         
         return prompt
     
-"""
-    Performs _parse_storyboard_response operation. Function iterates over data, has side effects. Takes self, storyboard_data and code_analysis as input. Returns a storyboard value.
-    :param self: The self object.
-    :param storyboard_data: The storyboard_data value of type Dict[(str, Any)].
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Storyboard
-"""
     def _parse_storyboard_response(self, storyboard_data: Dict[str, Any], code_analysis: Dict[str, Any]) -> Storyboard:
         """Parse GPT-4 response into Storyboard object."""
         
@@ -318,12 +287,6 @@ class StoryboardGenerator:
             metadata=storyboard_data.get('metadata', {})
         )
     
-"""
-    Performs _get_file_structure operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and code_analysis as input. Returns a dict[(str, any)] value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Dict[(str, Any)]
-"""
     def _get_file_structure(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Extract file structure information from code analysis."""
         files = code_analysis.get('files', {})
@@ -351,12 +314,6 @@ class StoryboardGenerator:
             'total_file_types': len(file_types)
         }
     
-"""
-    Performs _get_complexity_metrics operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and code_analysis as input. Returns a dict[(str, any)] value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Dict[(str, Any)]
-"""
     def _get_complexity_metrics(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Extract complexity metrics from code analysis."""
         files = code_analysis.get('files', {})
@@ -380,12 +337,6 @@ class StoryboardGenerator:
             'avg_lines_per_file': round(total_lines / len(files), 1) if files else 0
         }
     
-"""
-    Performs _get_functions_list operation. Function iterates over data, conditionally processes input, has side effects. Takes self and code_analysis as input. Returns a list[str] value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type List[str]
-"""
     def _get_functions_list(self, code_analysis: Dict[str, Any]) -> List[str]:
         """Extract list of function names from code analysis."""
         files = code_analysis.get('files', {})
@@ -400,24 +351,12 @@ class StoryboardGenerator:
         
         return functions[:10]  # Limit to 10 functions
     
-"""
-    Performs _get_data_structures operation. Takes self and code_analysis as input. Returns a list[str] value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type List[str]
-"""
     def _get_data_structures(self, code_analysis: Dict[str, Any]) -> List[str]:
         """Extract data structures information from code analysis."""
         # This is a simplified extraction - in a real implementation,
         # you would analyze the code for data structure usage
         return ['lists', 'dictionaries', 'sets', 'tuples']  # Default data structures
     
-"""
-    Performs _get_scene_metadata operation. Function has side effects. Takes self and code_analysis as input. Returns a dict[(str, any)] value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Dict[(str, Any)]
-"""
     def _get_scene_metadata(self, code_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Get standardized metadata for all scenes."""
         files = code_analysis.get('files', {})
@@ -447,12 +386,6 @@ class StoryboardGenerator:
             'data_structures': data_structures
         }
     
-"""
-    Performs _generate_fallback_storyboard operation. Function has side effects. Takes self and code_analysis as input. Returns a storyboard value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type Storyboard
-"""
     def _generate_fallback_storyboard(self, code_analysis: Dict[str, Any]) -> Storyboard:
         """Generate detailed storyboard using rule-based approach when AI is not available."""
         logger.info("Generating detailed fallback storyboard using rule-based approach")
@@ -523,13 +456,6 @@ class StoryboardGenerator:
             }
         )
     
-"""
-    Performs _create_intro_scene operation. Function has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_intro_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create introduction scene."""
         files = code_analysis.get('files', [])
@@ -564,14 +490,6 @@ class StoryboardGenerator:
             camera_movement=CameraMovement()
         )
     
-"""
-    Performs _create_algorithm_scene operation. Function conditionally processes input, has side effects. Takes self, scene_id, algorithm and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param algorithm: The algorithm string.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_algorithm_scene(self, scene_id: int, algorithm: str, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene for algorithm visualization."""
         
@@ -617,14 +535,6 @@ class StoryboardGenerator:
             camera_movement=CameraMovement(zoom=1.5)
         )
     
-"""
-    Performs _create_data_structure_scene operation. Function conditionally processes input, has side effects. Takes self, scene_id, data_structure and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param data_structure: The data_structure string.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_data_structure_scene(self, scene_id: int, data_structure: str, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene for data structure visualization."""
         
@@ -677,14 +587,6 @@ class StoryboardGenerator:
             camera_movement=CameraMovement(phi=60, theta=-30)
         )
     
-"""
-    Performs _create_complexity_scene operation. Function has side effects. Takes self, scene_id, complexity and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param complexity: The complexity value of type Dict[(str, Any)].
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_complexity_scene(self, scene_id: int, complexity: Dict[str, Any], code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene for complexity analysis visualization."""
         
@@ -719,13 +621,6 @@ class StoryboardGenerator:
             camera_movement=CameraMovement(zoom=1.3)
         )
     
-"""
-    Performs _create_summary_scene operation. Function has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_summary_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create summary scene."""
         
@@ -763,36 +658,16 @@ class StoryboardGenerator:
             camera_movement=CameraMovement(zoom=1.0)
         )
     
-"""
-    Saves the storyboard based on self, storyboard, output_path. Function has side effects. Takes self, storyboard and output_path as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard: The storyboard value of type Storyboard.
-    :param output_path: The output_path string.
-    :return: String value
-"""
     def save_storyboard(self, storyboard: Storyboard, output_path: str) -> str:
         """Save storyboard to JSON file."""
         return DataStructureManager.save_storyboard(storyboard, output_path)
     
-"""
-    Loads the storyboard based on self, file_path. Function has side effects. Takes self and file_path as input. Returns a storyboard value.
-    :param self: The self object.
-    :param file_path: The file_path string.
-    :return: Value of type Storyboard
-"""
     def load_storyboard(self, file_path: str) -> Storyboard:
         """Load storyboard from JSON file."""
         return DataStructureManager.load_storyboard(file_path)
 
     # ===== DETAILED SCENE CREATION METHODS =====
     
-"""
-    Performs _create_detailed_intro_scene operation. Function iterates over data, conditionally processes input, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_detailed_intro_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create detailed introduction scene with repository analysis."""
         files = code_analysis.get('files', {})
@@ -908,13 +783,6 @@ class StoryboardGenerator:
             }
         )
     
-"""
-    Performs _create_file_structure_scene operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_file_structure_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene showing file structure and organization."""
         files = code_analysis.get('files', {})
@@ -1013,13 +881,6 @@ class StoryboardGenerator:
             }
         )
     
-"""
-    Performs _create_language_analysis_scene operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_language_analysis_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create scene showing programming language distribution."""
         files = code_analysis.get('files', {})
@@ -1105,13 +966,6 @@ class StoryboardGenerator:
             }
         )
     
-"""
-    Performs _create_detailed_complexity_scene operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_detailed_complexity_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create detailed code complexity analysis scene."""
         files = code_analysis.get('files', {})
@@ -1177,13 +1031,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_call_graph_scene operation. Function iterates over data, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_call_graph_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create function call graph visualization scene."""
         files = code_analysis.get('files', {})
@@ -1239,13 +1086,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_ast_visualization_scene operation. Function iterates over data, conditionally processes input, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_ast_visualization_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create AST (Abstract Syntax Tree) visualization scene."""
         files = code_analysis.get('files', {})
@@ -1299,13 +1139,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_execution_flow_scene operation. Function iterates over data, conditionally processes input, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_execution_flow_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create algorithm execution flow visualization scene."""
         files = code_analysis.get('files', {})
@@ -1360,13 +1193,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_detailed_data_structure_scene operation. Function iterates over data, conditionally processes input, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_detailed_data_structure_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create detailed data structure visualization scene."""
         files = code_analysis.get('files', {})
@@ -1423,13 +1249,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_performance_analysis_scene operation. Function has side effects, performs arithmetic operations. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_performance_analysis_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create performance analysis scene."""
         files = code_analysis.get('files', {})
@@ -1481,13 +1300,6 @@ class StoryboardGenerator:
             metadata=self._get_scene_metadata(code_analysis)
         )
     
-"""
-    Performs _create_detailed_summary_scene operation. Function iterates over data, has side effects. Takes self, scene_id and code_analysis as input. Returns a storyboardscene value.
-    :param self: The self object.
-    :param scene_id: The scene_id integer.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type StoryboardScene
-"""
     def _create_detailed_summary_scene(self, scene_id: int, code_analysis: Dict[str, Any]) -> StoryboardScene:
         """Create detailed summary scene with insights."""
         files = code_analysis.get('files', {})

@@ -39,12 +39,6 @@ logger = logging.getLogger(__name__)
 class RuntimeStateCapture:
     """Captures runtime execution states using E2B sandbox."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self and max_execution_time as input. Returns a object value.
-    :param self: The self object.
-    :param max_execution_time: The max_execution_time integer.
-    :return: Value of type object
-"""
     def __init__(self, max_execution_time: int = 30):
         """
         Initialize the runtime state capture.
@@ -58,13 +52,6 @@ class RuntimeStateCapture:
         
         logger.info(f"RuntimeStateCapture initialized with max execution time: {max_execution_time}s")
     
-"""
-    Performs capture_execution operation. Function conditionally processes input, may return early, has side effects. Takes self, code_content and language as input. Returns a executiontrace value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :param language: The language string.
-    :return: Value of type ExecutionTrace
-"""
     def capture_execution(self, code_content: str, language: str = "python") -> ExecutionTrace:
         """
         Capture execution trace of code.
@@ -97,12 +84,6 @@ class RuntimeStateCapture:
             logger.error(f"Error capturing execution: {e}")
             return self._simulate_execution_trace(code_content, language)
     
-"""
-    Performs _capture_python_execution operation. Function iterates over data, conditionally processes input, may throw exceptions, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a executiontrace value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type ExecutionTrace
-"""
     def _capture_python_execution(self, code_content: str) -> ExecutionTrace:
         """Capture Python code execution using E2B."""
         try:
@@ -177,12 +158,6 @@ class RuntimeStateCapture:
             logger.error(f"Error in Python execution capture: {e}")
             raise
     
-"""
-    Performs _instrument_python_code operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a string value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: String value
-"""
     def _instrument_python_code(self, code_content: str) -> str:
         """Add instrumentation to Python code for state capture."""
         try:
@@ -248,12 +223,6 @@ def capture_state():
             logger.error(f"Error instrumenting Python code: {e}")
             return code_content
     
-"""
-    Performs _get_python_variables operation. Function may return early, has side effects. Takes self and sandbox as input. Returns a dict[(str, any)] value.
-    :param self: The self object.
-    :param sandbox: The sandbox object.
-    :return: Value of type Dict[(str, Any)]
-"""
     def _get_python_variables(self, sandbox) -> Dict[str, Any]:
         """Get variable states from Python execution."""
         try:
@@ -270,12 +239,6 @@ def capture_state():
             logger.error(f"Error getting Python variables: {e}")
             return {}
     
-"""
-    Performs _get_variables_from_debugger operation. Function may return early, has side effects. Takes self and sandbox as input. Returns a dict[(str, any)] value.
-    :param self: The self object.
-    :param sandbox: The sandbox object.
-    :return: Value of type Dict[(str, Any)]
-"""
     def _get_variables_from_debugger(self, sandbox) -> Dict[str, Any]:
         """Get variables using Python debugger."""
         try:
@@ -288,12 +251,6 @@ def capture_state():
             logger.error(f"Error getting variables from debugger: {e}")
             return {}
     
-"""
-    Performs _get_python_call_stack operation. Function may return early, has side effects. Takes self and sandbox as input. Returns a list[str] value.
-    :param self: The self object.
-    :param sandbox: The sandbox object.
-    :return: Value of type List[str]
-"""
     def _get_python_call_stack(self, sandbox) -> List[str]:
         """Get call stack from Python execution."""
         try:
@@ -308,12 +265,6 @@ def capture_state():
             logger.error(f"Error getting Python call stack: {e}")
             return ["main()"]
     
-"""
-    Performs _get_current_line operation. Function may return early, has side effects. Takes self and sandbox as input. Returns an integer value.
-    :param self: The self object.
-    :param sandbox: The sandbox object.
-    :return: Integer value
-"""
     def _get_current_line(self, sandbox) -> int:
         """Get current execution line number."""
         try:
@@ -328,12 +279,6 @@ def capture_state():
             logger.error(f"Error getting current line: {e}")
             return 0
     
-"""
-    Performs _capture_javascript_execution operation. Function may return early, has side effects. Takes self and code_content as input. Returns a executiontrace value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type ExecutionTrace
-"""
     def _capture_javascript_execution(self, code_content: str) -> ExecutionTrace:
         """Capture JavaScript code execution."""
         try:
@@ -347,12 +292,6 @@ def capture_state():
             logger.error(f"Error capturing JavaScript execution: {e}")
             return self._simulate_execution_trace(code_content, "javascript")
     
-"""
-    Performs _capture_java_execution operation. Function may return early, has side effects. Takes self and code_content as input. Returns a executiontrace value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type ExecutionTrace
-"""
     def _capture_java_execution(self, code_content: str) -> ExecutionTrace:
         """Capture Java code execution."""
         try:
@@ -366,13 +305,6 @@ def capture_state():
             logger.error(f"Error capturing Java execution: {e}")
             return self._simulate_execution_trace(code_content, "java")
     
-"""
-    Performs _simulate_execution_trace operation. Function conditionally processes input, may throw exceptions, may return early, has side effects, performs arithmetic operations. Takes self, code_content and language as input. Returns a executiontrace value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :param language: The language string.
-    :return: Value of type ExecutionTrace
-"""
     def _simulate_execution_trace(self, code_content: str, language: str) -> ExecutionTrace:
         """Simulate execution trace when E2B is not available."""
         try:
@@ -410,12 +342,6 @@ def capture_state():
             logger.error(f"Error simulating execution trace: {e}")
             raise
     
-"""
-    Performs _simulate_python_execution operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a list[executionstate] value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type List[ExecutionState]
-"""
     def _simulate_python_execution(self, code_content: str) -> List[ExecutionState]:
         """Simulate Python execution trace."""
         try:
@@ -465,12 +391,6 @@ def capture_state():
             logger.error(f"Error simulating Python execution: {e}")
             return []
     
-"""
-    Performs _simulate_javascript_execution operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a list[executionstate] value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type List[ExecutionState]
-"""
     def _simulate_javascript_execution(self, code_content: str) -> List[ExecutionState]:
         """Simulate JavaScript execution trace."""
         try:
@@ -500,12 +420,6 @@ def capture_state():
             logger.error(f"Error simulating JavaScript execution: {e}")
             return []
     
-"""
-    Performs _simulate_java_execution operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a list[executionstate] value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type List[ExecutionState]
-"""
     def _simulate_java_execution(self, code_content: str) -> List[ExecutionState]:
         """Simulate Java execution trace."""
         try:
@@ -535,12 +449,6 @@ def capture_state():
             logger.error(f"Error simulating Java execution: {e}")
             return []
     
-"""
-    Performs _simulate_generic_execution operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and code_content as input. Returns a list[executionstate] value.
-    :param self: The self object.
-    :param code_content: The code_content string.
-    :return: Value of type List[ExecutionState]
-"""
     def _simulate_generic_execution(self, code_content: str) -> List[ExecutionState]:
         """Simulate generic execution trace."""
         try:

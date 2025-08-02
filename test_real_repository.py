@@ -28,12 +28,6 @@ from repo_fetcher import RepoFetcher
 import tempfile
 import subprocess
 
-"""
-    Performs fetch_repository operation. Function may throw exceptions, may return early, has side effects. Takes repo_url as input. Returns a string value.
-    :param repo_url: The repo_url string.
-    :return: String value
-    :raises Call: Thrown when call occurs.
-"""
 def fetch_repository(repo_url: str) -> str:
     """Wrapper function to fetch a repository."""
     # Create a temporary directory for the repository
@@ -46,22 +40,11 @@ def fetch_repository(repo_url: str) -> str:
     except subprocess.CalledProcessError as e:
         raise ValueError(f"Failed to clone repository: {e}")
 
-"""
-    Performs analyze_repository operation. Function has side effects. Takes repo_path as input. Returns a object value.
-    :param repo_path: The repo_path string.
-    :return: Value of type object
-"""
 def analyze_repository(repo_path: str):
     """Wrapper function to analyze a repository."""
     analyzer = EnhancedCodeAnalyzer(repo_path)
     return analyzer.analyze_project()
 
-"""
-    Performs analyze_github_repo operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes repo_url and output_dir as input. Returns a object value.
-    :param repo_url: The repo_url string.
-    :param output_dir: The output_dir string.
-    :return: Value of type object
-"""
 def analyze_github_repo(repo_url: str, output_dir: str = "real_repo_output"):
     """Analyze a GitHub repository and create animations."""
     print(f"🎬 Testing Real Repository: {repo_url}")
@@ -158,10 +141,6 @@ def analyze_github_repo(repo_url: str, output_dir: str = "real_repo_output"):
         traceback.print_exc()
         return False
 
-"""
-    Performs main operation. Function conditionally processes input, may return early, has side effects. Returns a object value.
-    :return: Value of type object
-"""
 def main():
     """Main function."""
     parser = argparse.ArgumentParser(description="Test ManimGL system with real repositories")

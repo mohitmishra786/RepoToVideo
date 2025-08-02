@@ -41,114 +41,46 @@ except (ImportError, TypeError, AttributeError) as e:
     
     # Create dummy classes for when Manim is not available
     class Scene:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self):
             pass
         
-"""
-    Adds the add to the collection. Takes self and obj as input. Returns a object value.
-    :param self: The self object.
-    :param obj: The obj object.
-    :return: Value of type object
-"""
         def add(self, obj):
             pass
         
-"""
-    Performs play operation. Takes self, animation and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param animation: The animation object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def play(self, animation, run_time=1):
             pass
         
-"""
-    Waits the value based on self, duration. Takes self and duration as input. Returns a object value.
-    :param self: The self object.
-    :param duration: The duration object.
-    :return: Value of type object
-"""
         def wait(self, duration):
             pass
     
     class FadeIn:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class FadeOut:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class Create:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
     
     class Scale:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, scale_factor=1.2, run_time=1):
             self.target = target
             self.scale_factor = scale_factor
             self.run_time = run_time
     
     class Indicate:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, run_time=1, **kwargs):
             self.target = target
             self.run_time = run_time
             self.kwargs = kwargs
     
     class Circumscribe:
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
         def __init__(self, target, run_time=1):
             self.target = target
             self.run_time = run_time
@@ -158,13 +90,6 @@ logger = logging.getLogger(__name__)
 class AdvancedManimScene(Scene):
     """Advanced ManimGL scene with 3Blue1Brown-style animations."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
     def __init__(self, storyboard_scene: StoryboardScene):
         """
         Initialize the advanced scene.
@@ -180,11 +105,6 @@ class AdvancedManimScene(Scene):
         
         logger.info(f"AdvancedManimScene initialized for scene {storyboard_scene.id}")
     
-"""
-    Performs construct operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def construct(self):
         """Construct the scene with animations."""
         try:
@@ -205,11 +125,6 @@ class AdvancedManimScene(Scene):
             logger.error(f"Error in scene construction: {e}")
             self.create_error_scene()
     
-"""
-    Creates a new visual instance. Function iterates over data, conditionally processes input, has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def create_visual_elements(self):
         """Create all visual elements for the scene."""
         try:
@@ -232,11 +147,6 @@ class AdvancedManimScene(Scene):
         except Exception as e:
             logger.error(f"Error creating visual elements: {e}")
     
-"""
-    Performs execute_animation_sequence operation. Function iterates over data, conditionally processes input, has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def execute_animation_sequence(self):
         """Execute the animation sequence for the scene."""
         try:
@@ -249,12 +159,6 @@ class AdvancedManimScene(Scene):
         except Exception as e:
             logger.error(f"Error executing animation sequence: {e}")
     
-"""
-    Creates a new animation instance. Function conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and animation_step as input. Returns a optional[any] value.
-    :param self: The self object.
-    :param animation_step: The animation_step value of type AnimationStep.
-    :return: Value of type Optional[Any]
-"""
     def create_animation(self, animation_step: AnimationStep) -> Optional[Any]:
         """Create an animation from animation step specification."""
         try:
@@ -295,11 +199,6 @@ class AdvancedManimScene(Scene):
             logger.error(f"Error creating animation {animation_step.action}: {e}")
             return None
     
-"""
-    Adds the narration to the collection. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def add_narration_timing(self):
         """Add timing for narration synchronization."""
         try:
@@ -310,11 +209,6 @@ class AdvancedManimScene(Scene):
         except Exception as e:
             logger.error(f"Error adding narration timing: {e}")
     
-"""
-    Creates a new error instance. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def create_error_scene(self):
         """Create a fallback error scene."""
         try:
@@ -336,13 +230,6 @@ class AdvancedManimScene(Scene):
 class ManimSceneRenderer:
     """Renderer for ManimGL scenes."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self, target and run_time as input. Returns a object value.
-    :param self: The self object.
-    :param target: The target object.
-    :param run_time: The run_time object.
-    :return: Value of type object
-"""
     def __init__(self, output_dir: str = "manim_output"):
         """
         Initialize the scene renderer.
@@ -355,12 +242,6 @@ class ManimSceneRenderer:
         
         logger.info(f"ManimSceneRenderer initialized with output directory: {output_dir}")
     
-"""
-    Performs render_scene operation. Function conditionally processes input, may return early, has side effects. Takes self and storyboard_scene as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: String value
-"""
     def render_scene(self, storyboard_scene: StoryboardScene) -> str:
         """
         Render a single scene to video.
@@ -394,12 +275,6 @@ class ManimSceneRenderer:
             logger.error(f"Error rendering scene {storyboard_scene.id}: {e}")
             return self.create_fallback_video(storyboard_scene)
     
-"""
-    Creates a new scene instance. Function may throw exceptions, may return early, has side effects, performs arithmetic operations, performs file operations. Takes self and storyboard_scene as input. Returns a path value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: Value of type Path
-"""
     def create_scene_file(self, storyboard_scene: StoryboardScene) -> Path:
         """Create a temporary scene file for rendering."""
         try:
@@ -417,12 +292,6 @@ class ManimSceneRenderer:
             logger.error(f"Error creating scene file: {e}")
             raise
     
-"""
-    Generates the scene based on self, storyboard_scene. Function may throw exceptions, may return early, has side effects. Takes self and storyboard_scene as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: String value
-"""
     def generate_scene_code(self, storyboard_scene: StoryboardScene) -> str:
         """Generate Python code for the Manim scene with rich content."""
         try:
@@ -438,11 +307,6 @@ from manim import *
 import numpy as np
 
 class Scene{storyboard_scene.id}(Scene):
-"""
-    Performs construct operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def construct(self):
         # Set background
         self.camera.background_color = BLACK
@@ -502,12 +366,6 @@ if __name__ == "__main__":
             logger.error(f"Error generating scene code: {e}")
             raise
     
-"""
-    Performs _generate_rich_content operation. Function conditionally processes input, may return early, has side effects. Takes self and storyboard_scene as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: String value
-"""
     def _generate_rich_content(self, storyboard_scene: StoryboardScene) -> str:
         """Generate rich content based on scene concept and actual repository data."""
         concept = storyboard_scene.concept.lower()
@@ -538,12 +396,6 @@ if __name__ == "__main__":
         else:
             return self._generate_generic_content(storyboard_scene, repo_data)
     
-"""
-    Performs _extract_repository_data operation. Function conditionally processes input, may return early, has side effects. Takes self and storyboard_scene as input. Returns a dictionary of values.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: Dictionary of values
-"""
     def _extract_repository_data(self, storyboard_scene: StoryboardScene) -> dict:
         """Extract repository data from storyboard scene metadata."""
         # Get data from scene metadata if available
@@ -623,13 +475,6 @@ if __name__ == "__main__":
         
         return data
     
-"""
-    Performs _generate_overview_content operation. Function has side effects. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_overview_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate overview scene content based on actual repository data."""
         files = repo_data.get('files', 0)
@@ -675,13 +520,6 @@ if __name__ == "__main__":
         self.wait(1)
         '''
     
-"""
-    Performs _generate_structure_content operation. Function conditionally processes input, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_structure_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate file structure content based on actual repository data."""
         files = repo_data.get('files', 0)
@@ -731,13 +569,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_language_content operation. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_language_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate language distribution content based on actual repository data."""
         languages = repo_data.get('languages', ['Python'])
@@ -799,13 +630,6 @@ if __name__ == "__main__":
             self.wait(1)
             '''
     
-"""
-    Performs _generate_complexity_content operation. Function has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_complexity_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate complexity analysis content based on actual repository data."""
         avg_complexity = repo_data.get('complexity', {}).get('avg', 5.0)
@@ -841,13 +665,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_function_content operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_function_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate function call graph content based on actual repository data."""
         functions_list = repo_data.get('functions_list', [])
@@ -920,13 +737,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_ast_content operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_ast_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate AST visualization content based on actual repository data."""
         functions = repo_data.get('functions', 0)
@@ -990,13 +800,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_execution_content operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_execution_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate execution flow content based on actual repository data."""
         functions = repo_data.get('functions', 0)
@@ -1061,13 +864,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_data_structure_content operation. Function conditionally processes input, may return early, has side effects. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_data_structure_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate data structure visualization content based on actual repository data."""
         files = repo_data.get('files', 0)
@@ -1123,13 +919,6 @@ if __name__ == "__main__":
             self.wait(2)
             '''
     
-"""
-    Performs _generate_performance_content operation. Function conditionally processes input, has side effects, performs arithmetic operations. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_performance_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate performance analysis content based on actual repository data."""
         functions = repo_data.get('functions', 0)
@@ -1176,13 +965,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_summary_content operation. Function conditionally processes input, has side effects. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_summary_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate summary content based on actual repository data."""
         files = repo_data.get('files', 0)
@@ -1222,13 +1004,6 @@ if __name__ == "__main__":
         self.wait(2)
         '''
     
-"""
-    Performs _generate_generic_content operation. Function conditionally processes input, may return early, has side effects. Takes self, storyboard_scene and repo_data as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :param repo_data: The repo_data dictionary.
-    :return: String value
-"""
     def _generate_generic_content(self, storyboard_scene: StoryboardScene, repo_data: dict) -> str:
         """Generate generic content for unknown scene types based on repository data."""
         files = repo_data.get('files', 0)
@@ -1275,12 +1050,6 @@ if __name__ == "__main__":
             self.wait(2)
             '''
     
-"""
-    Performs _serialize_visual_elements operation. Function iterates over data, may return early, has side effects. Takes self and elements as input. Returns a string value.
-    :param self: The self object.
-    :param elements: The elements object.
-    :return: String value
-"""
     def _serialize_visual_elements(self, elements) -> str:
         """Serialize visual elements to string representation."""
         try:
@@ -1299,12 +1068,6 @@ VisualElement(
             logger.error(f"Error serializing visual elements: {e}")
             return "[]"
     
-"""
-    Performs _serialize_animation_sequence operation. Function iterates over data, may return early, has side effects. Takes self and sequence as input. Returns a string value.
-    :param self: The self object.
-    :param sequence: The sequence object.
-    :return: String value
-"""
     def _serialize_animation_sequence(self, sequence) -> str:
         """Serialize animation sequence to string representation."""
         try:
@@ -1323,13 +1086,6 @@ AnimationStep(
             logger.error(f"Error serializing animation sequence: {e}")
             return "[]"
     
-"""
-    Performs render_with_manim operation. Function conditionally processes input, may throw exceptions, may return early, has side effects, performs arithmetic operations. Takes self and scene_file as input. Returns a string value.
-    :param self: The self object.
-    :param scene_file: The scene_file value of type Path.
-    :return: String value
-    :raises Call: Thrown when call occurs.
-"""
     def render_with_manim(self, scene_file: Path) -> str:
         """Render the scene using ManimGL or Manim."""
         try:
@@ -1391,12 +1147,6 @@ AnimationStep(
             logger.error(f"Error in rendering: {e}")
             raise
     
-"""
-    Creates a new fallback instance. Function may throw exceptions, may return early, has side effects, performs arithmetic operations. Takes self and storyboard_scene as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard_scene: The storyboard_scene value of type StoryboardScene.
-    :return: String value
-"""
     def create_fallback_video(self, storyboard_scene: StoryboardScene) -> str:
         """Create a fallback video when Manim is not available."""
         try:
