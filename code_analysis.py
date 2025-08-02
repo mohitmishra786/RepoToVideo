@@ -95,6 +95,12 @@ class ErrorPattern:
 class EnhancedCodeAnalyzer:
     """Enhanced code analyzer with advanced features."""
     
+"""
+    Performs __init__ operation. Function has side effects. Takes self and project_path as input. Returns a object value.
+    :param self: The self object.
+    :param project_path: The project_path string.
+    :return: Value of type object
+"""
     def __init__(self, project_path: str):
         """
         Initialize the code analyzer.
@@ -106,6 +112,11 @@ class EnhancedCodeAnalyzer:
         self.language_parsers = {}
         self._setup_tree_sitter()
         
+"""
+    Performs _setup_tree_sitter operation. Function conditionally processes input, may return early, has side effects. Takes self as input. Returns a object value.
+    :param self: The self object.
+    :return: Value of type object
+"""
     def _setup_tree_sitter(self):
         """Setup Tree-sitter parsers for different languages."""
         if not tree_sitter:
@@ -127,6 +138,11 @@ class EnhancedCodeAnalyzer:
         except Exception as e:
             logger.warning(f"Failed to setup Tree-sitter parsers: {e}")
     
+"""
+    Performs analyze_project operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :return: Value of type Dict[(str, Any)]
+"""
     def analyze_project(self) -> Dict[str, Any]:
         """
         Perform comprehensive analysis of the entire project.
@@ -184,6 +200,12 @@ class EnhancedCodeAnalyzer:
         
         return analysis
     
+"""
+    Performs analyze_file operation. Function conditionally processes input, may throw exceptions, has side effects, performs file operations. Takes self and file_path as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param file_path: The file_path value of type Path.
+    :return: Value of type Dict[(str, Any)]
+"""
     def analyze_file(self, file_path: Path) -> Dict[str, Any]:
         """
         Analyze a single file.
@@ -240,6 +262,13 @@ class EnhancedCodeAnalyzer:
         
         return analysis
     
+"""
+    Performs _analyze_python_file operation. Function iterates over data, conditionally processes input, may throw exceptions, may return early, has side effects, performs arithmetic operations. Takes self, content and file_path as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param content: The content string.
+    :param file_path: The file_path value of type Path.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _analyze_python_file(self, content: str, file_path: Path) -> Dict[str, Any]:
         """Analyze a Python file using AST."""
         logger.debug(f"Starting Python AST analysis for {file_path}")
@@ -317,6 +346,13 @@ class EnhancedCodeAnalyzer:
                 }]
             }
     
+"""
+    Performs _analyze_javascript_file operation. Function has side effects. Takes self, content and file_path as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param content: The content string.
+    :param file_path: The file_path value of type Path.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _analyze_javascript_file(self, content: str, file_path: Path) -> Dict[str, Any]:
         """Analyze a JavaScript file."""
         # Basic JavaScript analysis using regex patterns
@@ -332,6 +368,13 @@ class EnhancedCodeAnalyzer:
             'error_patterns': error_patterns
         }
     
+"""
+    Performs _analyze_java_file operation. Function has side effects. Takes self, content and file_path as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param content: The content string.
+    :param file_path: The file_path value of type Path.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _analyze_java_file(self, content: str, file_path: Path) -> Dict[str, Any]:
         """Analyze a Java file."""
         # Basic Java analysis using regex patterns
@@ -347,6 +390,13 @@ class EnhancedCodeAnalyzer:
             'error_patterns': error_patterns
         }
     
+"""
+    Performs _extract_function_info operation. Function iterates over data, conditionally processes input, has side effects. Takes self, node and content as input. Returns a functioninfo value.
+    :param self: The self object.
+    :param node: The node value of type ast.FunctionDef.
+    :param content: The content string.
+    :return: Value of type FunctionInfo
+"""
     def _extract_function_info(self, node: ast.FunctionDef, content: str) -> FunctionInfo:
         """Extract detailed information about a function."""
         lines = content.splitlines()
@@ -377,6 +427,13 @@ class EnhancedCodeAnalyzer:
             complexity=complexity
         )
     
+"""
+    Performs _extract_class_info operation. Function iterates over data, conditionally processes input, has side effects. Takes self, node and content as input. Returns a classinfo value.
+    :param self: The self object.
+    :param node: The node value of type ast.ClassDef.
+    :param content: The content string.
+    :return: Value of type ClassInfo
+"""
     def _extract_class_info(self, node: ast.ClassDef, content: str) -> ClassInfo:
         """Extract detailed information about a class."""
         methods = []
@@ -400,6 +457,12 @@ class EnhancedCodeAnalyzer:
             docstring=ast.get_docstring(node)
         )
     
+"""
+    Performs _extract_import_info operation. Function conditionally processes input, may return early, has side effects. Takes self and node as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param node: The node value of type Union[(ast.Import, ast.ImportFrom)].
+    :return: Value of type Dict[(str, Any)]
+"""
     def _extract_import_info(self, node: Union[ast.Import, ast.ImportFrom]) -> Dict[str, Any]:
         """Extract import information."""
         if isinstance(node, ast.Import):
@@ -416,6 +479,13 @@ class EnhancedCodeAnalyzer:
                 'line': node.lineno
             }
     
+"""
+    Performs _detect_python_error_patterns operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, tree and content as input. Returns a list[errorpattern] value.
+    :param self: The self object.
+    :param tree: The tree value of type ast.AST.
+    :param content: The content string.
+    :return: Value of type List[ErrorPattern]
+"""
     def _detect_python_error_patterns(self, tree: ast.AST, content: str) -> List[ErrorPattern]:
         """Detect common error patterns in Python code."""
         patterns = []
@@ -459,6 +529,14 @@ class EnhancedCodeAnalyzer:
         
         return patterns
     
+"""
+    Performs _is_variable_defined operation. Function iterates over data, conditionally processes input, may return early, has side effects. Takes self, var_name, node and tree as input. Returns true or false.
+    :param self: The self object.
+    :param var_name: The var_name string.
+    :param node: The node value of type ast.AST.
+    :param tree: The tree value of type ast.AST.
+    :return: True or false
+"""
     def _is_variable_defined(self, var_name: str, node: ast.AST, tree: ast.AST) -> bool:
         """Check if a variable is defined before use."""
         # Simplified check - in a real implementation, this would be more sophisticated
@@ -481,6 +559,13 @@ class EnhancedCodeAnalyzer:
         
         return False
     
+"""
+    Performs _get_ancestors operation. Function iterates over data, conditionally processes input, has side effects. Takes self, node and tree as input. Returns a list[ast.ast] value.
+    :param self: The self object.
+    :param node: The node value of type ast.AST.
+    :param tree: The tree value of type ast.AST.
+    :return: Value of type List[ast.AST]
+"""
     def _get_ancestors(self, node: ast.AST, tree: ast.AST) -> List[ast.AST]:
         """Get ancestor nodes of a given node."""
         # Simplified implementation
@@ -490,6 +575,12 @@ class EnhancedCodeAnalyzer:
                 ancestors.append(n)
         return ancestors
     
+"""
+    Performs _get_return_type_annotation operation. Function conditionally processes input, may return early, has side effects. Takes self and node as input. Returns a optional[str] value.
+    :param self: The self object.
+    :param node: The node value of type ast.FunctionDef.
+    :return: Value of type Optional[str]
+"""
     def _get_return_type_annotation(self, node: ast.FunctionDef) -> Optional[str]:
         """Get return type annotation from function."""
         try:
@@ -502,6 +593,12 @@ class EnhancedCodeAnalyzer:
             logger.debug(f"Error getting return type annotation: {e}")
         return None
     
+"""
+    Performs _extract_js_functions operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_js_functions(self, content: str) -> List[Dict[str, Any]]:
         """Extract JavaScript functions using regex."""
         functions = []
@@ -530,6 +627,12 @@ class EnhancedCodeAnalyzer:
         
         return functions
     
+"""
+    Performs _extract_js_classes operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_js_classes(self, content: str) -> List[Dict[str, Any]]:
         """Extract JavaScript classes using regex."""
         classes = []
@@ -546,6 +649,12 @@ class EnhancedCodeAnalyzer:
         
         return classes
     
+"""
+    Performs _extract_js_imports operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_js_imports(self, content: str) -> List[Dict[str, Any]]:
         """Extract JavaScript imports using regex."""
         imports = []
@@ -569,6 +678,12 @@ class EnhancedCodeAnalyzer:
         
         return imports
     
+"""
+    Performs _detect_js_error_patterns operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _detect_js_error_patterns(self, content: str) -> List[Dict[str, Any]]:
         """Detect common error patterns in JavaScript code."""
         patterns = []
@@ -597,6 +712,14 @@ class EnhancedCodeAnalyzer:
         
         return patterns
     
+"""
+    Performs _is_js_variable_defined operation. Function iterates over data, conditionally processes input, may return early, has side effects. Takes self, var_name, content and position as input. Returns true or false.
+    :param self: The self object.
+    :param var_name: The var_name string.
+    :param content: The content string.
+    :param position: The position integer.
+    :return: True or false
+"""
     def _is_js_variable_defined(self, var_name: str, content: str, position: int) -> bool:
         """Check if a JavaScript variable is defined before use."""
         # Simplified check
@@ -617,6 +740,12 @@ class EnhancedCodeAnalyzer:
         
         return False
     
+"""
+    Performs _extract_java_methods operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_java_methods(self, content: str) -> List[Dict[str, Any]]:
         """Extract Java methods using regex."""
         methods = []
@@ -632,6 +761,12 @@ class EnhancedCodeAnalyzer:
         
         return methods
     
+"""
+    Performs _extract_java_classes operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_java_classes(self, content: str) -> List[Dict[str, Any]]:
         """Extract Java classes using regex."""
         classes = []
@@ -649,6 +784,12 @@ class EnhancedCodeAnalyzer:
         
         return classes
     
+"""
+    Performs _extract_java_imports operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _extract_java_imports(self, content: str) -> List[Dict[str, Any]]:
         """Extract Java imports using regex."""
         imports = []
@@ -665,6 +806,12 @@ class EnhancedCodeAnalyzer:
         
         return imports
     
+"""
+    Performs _detect_java_error_patterns operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and content as input. Returns a list[dict[(str, any)]] value.
+    :param self: The self object.
+    :param content: The content string.
+    :return: Value of type List[Dict[(str, Any)]]
+"""
     def _detect_java_error_patterns(self, content: str) -> List[Dict[str, Any]]:
         """Detect common error patterns in Java code."""
         patterns = []
@@ -693,6 +840,14 @@ class EnhancedCodeAnalyzer:
         
         return patterns
     
+"""
+    Performs _is_java_variable_defined operation. Function iterates over data, conditionally processes input, may return early, has side effects. Takes self, var_name, content and position as input. Returns true or false.
+    :param self: The self object.
+    :param var_name: The var_name string.
+    :param content: The content string.
+    :param position: The position integer.
+    :return: True or false
+"""
     def _is_java_variable_defined(self, var_name: str, content: str, position: int) -> bool:
         """Check if a Java variable is defined before use."""
         # Simplified check
@@ -712,6 +867,12 @@ class EnhancedCodeAnalyzer:
         
         return False
     
+"""
+    Performs _detect_language operation. Function conditionally processes input, may return early, has side effects. Takes self and file_path as input. Returns a languagetype value.
+    :param self: The self object.
+    :param file_path: The file_path value of type Path.
+    :return: Value of type LanguageType
+"""
     def _detect_language(self, file_path: Path) -> LanguageType:
         """Detect the programming language of a file."""
         extension = file_path.suffix.lower()
@@ -725,6 +886,11 @@ class EnhancedCodeAnalyzer:
         else:
             return LanguageType.UNKNOWN
     
+"""
+    Performs _get_code_files operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self as input. Returns a list[path] value.
+    :param self: The self object.
+    :return: Value of type List[Path]
+"""
     def _get_code_files(self) -> List[Path]:
         """Get all code files in the project."""
         code_extensions = {'.py', '.js', '.jsx', '.ts', '.tsx', '.java'}
@@ -754,6 +920,11 @@ class EnhancedCodeAnalyzer:
         
         return code_files
     
+"""
+    Performs _get_project_info operation. Function has side effects. Takes self as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _get_project_info(self) -> Dict[str, Any]:
         """Get basic project information."""
         return {
@@ -763,6 +934,11 @@ class EnhancedCodeAnalyzer:
             'languages': self._get_language_distribution()
         }
     
+"""
+    Performs _get_language_distribution operation. Function iterates over data, has side effects, performs arithmetic operations. Takes self as input. Returns a dict[(str, int)] value.
+    :param self: The self object.
+    :return: Value of type Dict[(str, int)]
+"""
     def _get_language_distribution(self) -> Dict[str, int]:
         """Get distribution of programming languages in the project."""
         distribution = {}
@@ -773,6 +949,11 @@ class EnhancedCodeAnalyzer:
         
         return distribution
     
+"""
+    Performs _analyze_dependencies operation. Function conditionally processes input, may return early, has side effects. Takes self as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _analyze_dependencies(self) -> Dict[str, Any]:
         """Analyze project dependencies."""
         if not DEPTREE_AVAILABLE:
@@ -790,6 +971,11 @@ class EnhancedCodeAnalyzer:
             logger.error(f"Error analyzing dependencies: {e}")
             return {'error': str(e)}
     
+"""
+    Performs _generate_call_graph operation. Function conditionally processes input, may return early, has side effects. Takes self as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _generate_call_graph(self) -> Dict[str, Any]:
         """Generate call graph for the project."""
         if not CALLGRAPH_AVAILABLE:
@@ -807,6 +993,12 @@ class EnhancedCodeAnalyzer:
             logger.error(f"Error generating call graph: {e}")
             return {'error': str(e)}
     
+"""
+    Performs _calculate_project_metrics operation. Function iterates over data, has side effects. Takes self and analysis as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param analysis: The analysis value of type Dict[(str, Any)].
+    :return: Value of type Dict[(str, Any)]
+"""
     def _calculate_project_metrics(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate project-wide metrics."""
         total_lines = 0
@@ -830,6 +1022,12 @@ class EnhancedCodeAnalyzer:
             'maintainability_index': 0  # Would need to calculate this
         }
     
+"""
+    Performs _function_to_dict operation. Takes self and func as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param func: The func value of type FunctionInfo.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _function_to_dict(self, func: FunctionInfo) -> Dict[str, Any]:
         """Convert FunctionInfo to dictionary."""
         return {
@@ -843,6 +1041,12 @@ class EnhancedCodeAnalyzer:
             'complexity': func.complexity
         }
     
+"""
+    Performs _class_to_dict operation. Function has side effects. Takes self and cls as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param cls: The cls value of type ClassInfo.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _class_to_dict(self, cls: ClassInfo) -> Dict[str, Any]:
         """Convert ClassInfo to dictionary."""
         return {
@@ -855,6 +1059,12 @@ class EnhancedCodeAnalyzer:
             'docstring': cls.docstring
         }
     
+"""
+    Performs _error_pattern_to_dict operation. Takes self and error as input. Returns a dict[(str, any)] value.
+    :param self: The self object.
+    :param error: The error value of type ErrorPattern.
+    :return: Value of type Dict[(str, Any)]
+"""
     def _error_pattern_to_dict(self, error: ErrorPattern) -> Dict[str, Any]:
         """Convert ErrorPattern to dictionary."""
         return {

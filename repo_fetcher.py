@@ -18,6 +18,12 @@ import requests
 class RepoFetcher:
     """Handles fetching and analyzing GitHub repositories."""
     
+"""
+    Performs __init__ operation. Function conditionally processes input, has side effects. Takes self and github_token as input. Returns a object value.
+    :param self: The self object.
+    :param github_token: The github_token value of type Optional[str].
+    :return: Value of type object
+"""
     def __init__(self, github_token: Optional[str] = None):
         """
         Initialize the RepoFetcher.
@@ -28,6 +34,12 @@ class RepoFetcher:
         self.github = Github(github_token) if github_token else Github()
         self.rate_limit = self.github.get_rate_limit()
     
+"""
+    Validates the input self, url. Function conditionally processes input, may return early, has side effects. Takes self and url as input. Returns a tuple[(bool, str, str)] value.
+    :param self: The self object.
+    :param url: The url string.
+    :return: Value of type Tuple[(bool, str, str)]
+"""
     def validate_github_url(self, url: str) -> Tuple[bool, str, str]:
         """
         Validate if the URL is a valid GitHub repository URL.
@@ -48,6 +60,13 @@ class RepoFetcher:
             return True, owner, repo_name
         return False, "", ""
     
+"""
+    Performs fetch_repo operation. Function conditionally processes input, may throw exceptions, may return early, has side effects. Takes self and url as input. Returns a optional[repository] value.
+    :param self: The self object.
+    :param url: The url string.
+    :return: Value of type Optional[Repository]
+    :raises Call: Thrown when call occurs.
+"""
     def fetch_repo(self, url: str) -> Optional[Repository]:
         """
         Fetch repository information from GitHub.
@@ -74,6 +93,13 @@ class RepoFetcher:
             else:
                 raise ValueError(f"Error fetching repository: {str(e)}")
     
+"""
+    Retrieves the repo. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self, repo and path as input. Returns a list[dict] value.
+    :param self: The self object.
+    :param repo: The repo value of type Repository.
+    :param path: The path string.
+    :return: Value of type List[Dict]
+"""
     def get_repo_contents(self, repo: Repository, path: str = "") -> List[Dict]:
         """
         Recursively fetch repository contents.
@@ -110,6 +136,12 @@ class RepoFetcher:
         
         return contents
     
+"""
+    Performs _is_relevant_file operation. Function has side effects. Takes self and filename as input. Returns true or false.
+    :param self: The self object.
+    :param filename: The filename string.
+    :return: True or false
+"""
     def _is_relevant_file(self, filename: str) -> bool:
         """
         Check if a file is relevant for analysis.
@@ -129,6 +161,12 @@ class RepoFetcher:
         
         return any(filename.endswith(ext) for ext in relevant_extensions) or filename in ['README', 'LICENSE']
     
+"""
+    Performs analyze_repo operation. Function iterates over data, conditionally processes input, has side effects. Takes self and repo as input. Returns a dictionary of values.
+    :param self: The self object.
+    :param repo: The repo value of type Repository.
+    :return: Dictionary of values
+"""
     def analyze_repo(self, repo: Repository) -> Dict:
         """
         Analyze repository structure and content.
@@ -172,6 +210,12 @@ class RepoFetcher:
         
         return analysis
     
+"""
+    Performs _is_code_file operation. Function has side effects. Takes self and filename as input. Returns true or false.
+    :param self: The self object.
+    :param filename: The filename string.
+    :return: True or false
+"""
     def _is_code_file(self, filename: str) -> bool:
         """
         Check if a file is a code file.
@@ -190,6 +234,12 @@ class RepoFetcher:
         
         return any(filename.endswith(ext) for ext in code_extensions)
     
+"""
+    Performs _analyze_structure operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self and contents as input. Returns a dictionary of values.
+    :param self: The self object.
+    :param contents: The contents value of type List[Dict].
+    :return: Dictionary of values
+"""
     def _analyze_structure(self, contents: List[Dict]) -> Dict:
         """
         Analyze the structure of repository contents.
@@ -231,6 +281,12 @@ class RepoFetcher:
         structure['directories'] = list(structure['directories'])
         return structure
     
+"""
+    Parses the readme based on self, readme_content. Function iterates over data, conditionally processes input, has side effects. Takes self and readme_content as input. Returns a dictionary of values.
+    :param self: The self object.
+    :param readme_content: The readme_content string.
+    :return: Dictionary of values
+"""
     def parse_readme(self, readme_content: str) -> Dict:
         """
         Parse README content to extract tutorial-like sections.
@@ -283,6 +339,12 @@ class RepoFetcher:
         
         return sections
     
+"""
+    Performs analyze_python_code operation. Function iterates over data, conditionally processes input, may return early, has side effects. Takes self and code_content as input. Returns a dictionary of values.
+    :param self: The self object.
+    :param code_content: The code_content string.
+    :return: Dictionary of values
+"""
     def analyze_python_code(self, code_content: str) -> Dict:
         """
         Analyze Python code using AST.
@@ -338,6 +400,11 @@ class RepoFetcher:
                 'errors': [f"Syntax error at line {e.lineno}: {e.text}"]
             }
     
+"""
+    Retrieves the rate. Takes self as input. Returns a dictionary of values.
+    :param self: The self object.
+    :return: Dictionary of values
+"""
     def get_rate_limit_info(self) -> Dict:
         """
         Get current GitHub API rate limit information.
