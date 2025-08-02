@@ -1,26 +1,53 @@
 """
-Video Generator Module
+Enhanced Video Generator Module
 
-This module handles video generation using MoviePy to create animated walkthroughs
-of GitHub repositories.
+This module handles video generation using Manim and MoviePy to create animated walkthroughs
+of GitHub repositories with dynamic execution visualization.
 """
 
 import os
 import tempfile
 import numpy as np
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
+import logging
+import subprocess
+import json
+import time
+from pathlib import Path
+
+# MoviePy imports
 from moviepy import (
     VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip,
-    ColorClip, ImageClip, concatenate_videoclips, vfx
+    ColorClip, ImageClip, concatenate_videoclips, vfx, VideoClip
 )
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image, ImageDraw, ImageFont
 import io
 
+# Manim imports (optional)
+try:
+    from manim import *
+    MANIM_AVAILABLE = True
+except ImportError:
+    MANIM_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Manim not available. Using fallback visualization.")
+
+# E2B imports (optional)
+try:
+    from e2b_code_interpreter import code_interpreter_sync
+    E2B_AVAILABLE = True
+except ImportError:
+    E2B_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("E2B not available. Using fallback execution tracing.")
+
+logger = logging.getLogger(__name__)
+
 
 class VideoGenerator:
-    """Handles video generation for repository walkthroughs."""
+    """Enhanced video generator with dynamic execution visualization."""
     
     def __init__(self, output_path: str = "walkthrough.mp4"):
         """
@@ -35,6 +62,20 @@ class VideoGenerator:
         self.resolution = (1920, 1080)  # 1080p
         self.fps = 30
         self.background_color = (25, 25, 35)  # Dark blue-gray
+        
+        # Enhanced features
+        self.use_manim = MANIM_AVAILABLE
+        self.use_e2b = E2B_AVAILABLE
+        self.scene_cache = {}
+        self.execution_traces = {}
+        
+        # Manim configuration
+        self.manim_config = {
+            'pixel_height': 1080,
+            'pixel_width': 1920,
+            'frame_rate': 30,
+            'background_color': '#1a1a2e'
+        }
         
     def create_video(self, steps: List[Dict], audio_files: List[str]) -> str:
         """
@@ -75,7 +116,7 @@ class VideoGenerator:
                     
                     # Combine visual and audio
                     if audio_clip:
-                        # Create new ColorClip with audio duration - use the same color as the original clip
+                        # Create a new visual clip with the audio duration
                         step_type = step.get('type', 'generic')
                         if step_type == 'intro':
                             color = (50, 100, 150)  # Blue
@@ -94,7 +135,11 @@ class VideoGenerator:
                         else:
                             color = self.background_color
                         
-                        final_clip = ColorClip(size=self.resolution, color=color, duration=audio_clip.duration).set_audio(audio_clip)
+                        # Create a ColorClip with the audio duration
+                        color_clip = ColorClip(size=self.resolution, color=color, duration=audio_clip.duration)
+                        # Set the audio directly on the ColorClip
+                        color_clip.audio = audio_clip
+                        final_clip = color_clip
                         logger.info(f"Combined visual and audio for step {i+1}, duration: {audio_clip.duration}")
                     else:
                         # Use default duration if no audio
@@ -157,7 +202,7 @@ class VideoGenerator:
             logger.error(f"Full traceback: {traceback.format_exc()}")
             raise
                 
-    def _create_simple_step_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_step_visual(self, step: Dict, step_number: int) -> VideoClip:
         """
         Create a simple visual for a step using basic ColorClip.
         
@@ -187,59 +232,535 @@ class VideoGenerator:
         else:
             return self._create_simple_generic_visual(step, step_number)
     
-    def _create_simple_intro_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_intro_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple introduction visual."""
         # Create background with different color for intro
         background = ColorClip(size=self.resolution, color=(50, 100, 150), duration=20)  # Blue
         return background
     
-    def _create_simple_overview_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_overview_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple overview visual."""
         # Create background with different color for overview
         background = ColorClip(size=self.resolution, color=(100, 50, 150), duration=25)  # Purple
         return background
     
-    def _create_simple_structure_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_structure_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple structure visual."""
         # Create background with different color for structure
         background = ColorClip(size=self.resolution, color=(150, 100, 50), duration=30)  # Orange
         return background
     
-    def _create_simple_code_analysis_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_code_analysis_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple code analysis visual."""
         # Create background with different color for code analysis
         background = ColorClip(size=self.resolution, color=(100, 150, 50), duration=35)  # Green
         return background
     
-    def _create_simple_code_review_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_code_review_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple code review visual."""
         # Create background with different color for code review
         background = ColorClip(size=self.resolution, color=(150, 50, 100), duration=25)  # Pink
         return background
     
-    def _create_simple_error_simulation_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_error_simulation_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple error simulation visual."""
         # Create background with different color for error simulation
         background = ColorClip(size=self.resolution, color=(150, 50, 50), duration=40)  # Red
         return background
     
-    def _create_simple_summary_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_summary_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple summary visual."""
         # Create background with different color for summary
         background = ColorClip(size=self.resolution, color=(50, 150, 100), duration=30)  # Teal
         return background
     
-    def _create_simple_error_visual(self, error_message: str) -> VideoFileClip:
+    def _create_simple_error_visual(self, error_message: str) -> VideoClip:
         """Create simple error visual for failed steps."""
         # Create background with error color
         background = ColorClip(size=self.resolution, color=(100, 25, 25), duration=10)  # Dark red
         return background
 
-    def _create_simple_generic_visual(self, step: Dict, step_number: int) -> VideoFileClip:
+    def _create_simple_generic_visual(self, step: Dict, step_number: int) -> VideoClip:
         """Create simple generic visual for unknown step types."""
         # Create background with default color
         background = ColorClip(size=self.resolution, color=self.background_color, duration=30)
         return background
+    
+    def create_dynamic_execution_scene(self, code_content: str, execution_trace: Dict[str, Any]) -> str:
+        """
+        Create a dynamic execution visualization scene using Manim.
+        
+        Args:
+            code_content: The code being executed
+            execution_trace: Execution trace data from E2B
+            
+        Returns:
+            Path to the generated video file
+        """
+        if not self.use_manim:
+            logger.warning("Manim not available, using fallback visualization")
+            return self._create_fallback_execution_scene(code_content, execution_trace)
+        
+        try:
+            # Create Manim scene for execution visualization
+            scene_file = self._generate_manim_scene(code_content, execution_trace)
+            
+            # Render the scene
+            output_file = self._render_manim_scene(scene_file)
+            
+            return output_file
+            
+        except Exception as e:
+            logger.error(f"Error creating dynamic execution scene: {e}")
+            return self._create_fallback_execution_scene(code_content, execution_trace)
+    
+    def _generate_manim_scene(self, code_content: str, execution_trace: Dict[str, Any]) -> str:
+        """Generate a Manim scene file for execution visualization."""
+        scene_content = self._create_manim_scene_content(code_content, execution_trace)
+        
+        scene_file = os.path.join(self.temp_dir, "execution_scene.py")
+        with open(scene_file, 'w') as f:
+            f.write(scene_content)
+        
+        return scene_file
+    
+    def _create_manim_scene_content(self, code_content: str, execution_trace: Dict[str, Any]) -> str:
+        """Create the content for a Manim scene."""
+        lines = code_content.splitlines()
+        variables = execution_trace.get('variables', {})
+        call_stack = execution_trace.get('call_stack', [])
+        
+        # Escape the code content properly
+        escaped_code = code_content.replace('"', '\\"').replace('\n', '\\n')
+        
+        scene_content = f'''
+from manim import *
+
+class ExecutionVisualization(Scene):
+    def construct(self):
+        # Setup
+        self.camera.background_color = "{self.manim_config['background_color']}"
+        
+        # Code display
+        code_text = Code(
+            code="{escaped_code}",
+            language="python",
+            style="monokai",
+            font_size=24
+        )
+        code_text.to_edge(UP)
+        
+        # Variable display
+        var_text = Text("Variables:", font_size=20, color=YELLOW)
+        var_text.to_edge(LEFT).shift(DOWN * 2)
+        
+        # Call stack display
+        stack_text = Text("Call Stack:", font_size=20, color=GREEN)
+        stack_text.to_edge(RIGHT).shift(DOWN * 2)
+        
+        # Terminal simulation
+        terminal = Rectangle(width=8, height=3, color=WHITE)
+        terminal.to_edge(DOWN)
+        terminal_text = Text("Terminal Output", font_size=16, color=WHITE)
+        terminal_text.move_to(terminal.get_center())
+        
+        # Animate elements
+        self.play(Write(code_text))
+        self.play(Write(var_text))
+        self.play(Write(stack_text))
+        self.play(Create(terminal))
+        self.play(Write(terminal_text))
+        
+        # Animate variable changes
+        for var_name, var_value in {variables}.items():
+            var_display = Text(f"{{var_name}} = {{var_value}}", font_size=18, color=BLUE)
+            var_display.next_to(var_text, DOWN, buff=0.5)
+            self.play(Write(var_display))
+            self.wait(1)
+        
+        # Animate call stack
+        for i, call in enumerate(call_stack):
+            call_display = Text(f"{{call}}", font_size=16, color=GREEN)
+            call_display.next_to(stack_text, DOWN, buff=0.3)
+            self.play(Write(call_display))
+            self.wait(0.5)
+        
+        self.wait(2)
+'''
+        
+        return scene_content
+    
+    def _render_manim_scene(self, scene_file: str) -> str:
+        """Render a Manim scene file."""
+        try:
+            # Run Manim render command
+            output_dir = os.path.join(self.temp_dir, "manim_output")
+            os.makedirs(output_dir, exist_ok=True)
+            
+            cmd = [
+                "manim", "-pql", scene_file, "ExecutionVisualization",
+                "-o", "execution_scene"
+            ]
+            
+            result = subprocess.run(cmd, cwd=self.temp_dir, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                # Find the generated video file
+                video_file = os.path.join(output_dir, "ExecutionVisualization.mp4")
+                if os.path.exists(video_file):
+                    return video_file
+                else:
+                    # Look for the file in the temp directory
+                    for file in os.listdir(self.temp_dir):
+                        if file.endswith('.mp4'):
+                            return os.path.join(self.temp_dir, file)
+            
+            logger.error(f"Manim render failed: {result.stderr}")
+            return ""
+            
+        except Exception as e:
+            logger.error(f"Error rendering Manim scene: {e}")
+            return ""
+    
+    def _create_fallback_execution_scene(self, code_content: str, execution_trace: Dict[str, Any]) -> str:
+        """Create a fallback execution scene using MoviePy."""
+        try:
+            # Create a simple visualization using MoviePy
+            duration = 10  # 10 seconds
+            
+            # Create background
+            background = ColorClip(size=self.resolution, color=self.background_color, duration=duration)
+            
+            # Create text overlays
+            code_text = TextClip(
+                code_content[:200] + "..." if len(code_content) > 200 else code_content,
+                fontsize=20,
+                color='white',
+                font='Arial'
+            ).set_position(('center', 100)).set_duration(duration)
+            
+            # Create variable display
+            variables = execution_trace.get('variables', {})
+            var_text = ""
+            for var_name, var_value in variables.items():
+                var_text += f"{var_name} = {var_value}\n"
+            
+            if var_text:
+                var_clip = TextClip(
+                    var_text,
+                    fontsize=16,
+                    color='yellow',
+                    font='Arial'
+                ).set_position(('left', 300)).set_duration(duration)
+                
+                # Combine clips
+                final_clip = CompositeVideoClip([background, code_text, var_clip])
+            else:
+                final_clip = CompositeVideoClip([background, code_text])
+            
+            # Save the video
+            output_file = os.path.join(self.temp_dir, "fallback_execution.mp4")
+            final_clip.write_videofile(output_file, fps=self.fps, verbose=False, logger=None)
+            
+            return output_file
+            
+        except Exception as e:
+            logger.error(f"Error creating fallback execution scene: {e}")
+            return ""
+    
+    def trace_code_execution(self, code_content: str) -> Dict[str, Any]:
+        """
+        Trace code execution using E2B sandbox.
+        
+        Args:
+            code_content: Code to execute and trace
+            
+        Returns:
+            Execution trace data
+        """
+        if not self.use_e2b:
+            logger.warning("E2B not available, using simulated execution trace")
+            return self._simulate_execution_trace(code_content)
+        
+        try:
+            # Create E2B session using code_interpreter_sync
+            session = code_interpreter_sync.Sandbox(api_key=os.getenv('E2B_API_KEY'))
+            
+            # Prepare code for execution
+            trace_code = f"""
+import sys
+import traceback
+import json
+
+# Setup tracing
+variables = {{}}
+call_stack = []
+output = []
+
+def trace_variable(name, value):
+    variables[name] = str(value)
+
+def trace_call(func_name):
+    call_stack.append(func_name)
+
+# Execute the code with tracing
+try:
+{chr(10).join('    ' + line for line in code_content.splitlines())}
+except Exception as e:
+    output.append(f"Error: {{e}}")
+
+# Return trace data
+print(json.dumps({{
+    "variables": variables,
+    "call_stack": call_stack,
+    "output": output,
+    "success": len(output) == 0
+}}))
+"""
+            
+            # Execute in sandbox using E2B
+            result = session.run(trace_code)
+            
+            # Parse results
+            if result and hasattr(result, 'output'):
+                try:
+                    # Extract the JSON output from the result
+                    output_lines = result.output.split('\n')
+                    for line in output_lines:
+                        if line.strip().startswith('{') and line.strip().endswith('}'):
+                            trace_data = json.loads(line.strip())
+                            return trace_data
+                    logger.error("No valid JSON found in output")
+                    return self._simulate_execution_trace(code_content)
+                except json.JSONDecodeError:
+                    logger.error("Failed to parse execution trace")
+                    return self._simulate_execution_trace(code_content)
+            
+            return self._simulate_execution_trace(code_content)
+            
+        except Exception as e:
+            logger.error(f"Error tracing code execution: {e}")
+            return self._simulate_execution_trace(code_content)
+    
+    def _simulate_execution_trace(self, code_content: str) -> Dict[str, Any]:
+        """Simulate execution trace for fallback."""
+        # Simple simulation based on code content
+        variables = {}
+        call_stack = []
+        output = []
+        
+        lines = code_content.splitlines()
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Detect variable assignments
+            if '=' in line and not line.startswith('#'):
+                parts = line.split('=')
+                if len(parts) == 2:
+                    var_name = parts[0].strip()
+                    var_value = parts[1].strip()
+                    variables[var_name] = var_value
+            
+            # Detect function calls
+            if '(' in line and ')' in line and not line.startswith('#'):
+                if 'def ' not in line and 'class ' not in line:
+                    # Extract function name
+                    func_match = re.search(r'(\w+)\s*\(', line)
+                    if func_match:
+                        call_stack.append(func_match.group(1))
+            
+            # Detect print statements
+            if 'print(' in line:
+                output.append(f"Output: {line}")
+        
+        return {
+            'variables': variables,
+            'call_stack': call_stack,
+            'output': output,
+            'success': True
+        }
+    
+    def create_call_graph_visualization(self, call_graph: Dict[str, Any]) -> str:
+        """
+        Create a call graph visualization using Manim.
+        
+        Args:
+            call_graph: Call graph data
+            
+        Returns:
+            Path to the generated video file
+        """
+        if not self.use_manim:
+            return self._create_fallback_call_graph(call_graph)
+        
+        try:
+            # Create Manim scene for call graph
+            scene_content = self._create_call_graph_scene_content(call_graph)
+            
+            scene_file = os.path.join(self.temp_dir, "call_graph_scene.py")
+            with open(scene_file, 'w') as f:
+                f.write(scene_content)
+            
+            # Render the scene
+            return self._render_manim_scene(scene_file)
+            
+        except Exception as e:
+            logger.error(f"Error creating call graph visualization: {e}")
+            return self._create_fallback_call_graph(call_graph)
+    
+    def _create_call_graph_scene_content(self, call_graph: Dict[str, Any]) -> str:
+        """Create Manim scene content for call graph visualization."""
+        nodes = call_graph.get('nodes', [])
+        edges = call_graph.get('edges', [])
+        
+        scene_content = f'''
+from manim import *
+
+class CallGraphVisualization(Scene):
+    def construct(self):
+        # Setup
+        self.camera.background_color = "{self.manim_config['background_color']}"
+        
+        # Title
+        title = Text("Function Call Graph", font_size=36, color=WHITE)
+        title.to_edge(UP)
+        self.play(Write(title))
+        
+        # Create nodes
+        node_objects = {{}}
+        for i, node in enumerate({nodes}):
+            node_text = Text(node, font_size=20, color=BLUE)
+            node_circle = Circle(radius=0.5, color=BLUE, fill_opacity=0.3)
+            node_group = VGroup(node_circle, node_text)
+            
+            # Position nodes in a circle
+            angle = i * 2 * PI / len({nodes})
+            radius = 3
+            x = radius * np.cos(angle)
+            y = radius * np.sin(angle)
+            node_group.move_to([x, y, 0])
+            
+            node_objects[node] = node_group
+            self.play(Create(node_group))
+        
+        # Create edges
+        for edge in {edges}:
+            if edge[0] in node_objects and edge[1] in node_objects:
+                start_node = node_objects[edge[0]]
+                end_node = node_objects[edge[1]]
+                
+                edge_line = Line(
+                    start=start_node.get_center(),
+                    end=end_node.get_center(),
+                    color=YELLOW
+                )
+                self.play(Create(edge_line))
+        
+        self.wait(3)
+'''
+        
+        return scene_content
+    
+    def _create_fallback_call_graph(self, call_graph: Dict[str, Any]) -> str:
+        """Create a fallback call graph visualization."""
+        try:
+            # Create a simple visualization using matplotlib
+            import matplotlib.pyplot as plt
+            import networkx as nx
+            
+            G = nx.DiGraph()
+            
+            # Add nodes and edges
+            for node in call_graph.get('nodes', []):
+                G.add_node(node)
+            
+            for edge in call_graph.get('edges', []):
+                if len(edge) >= 2:
+                    G.add_edge(edge[0], edge[1])
+            
+            # Create the plot
+            plt.figure(figsize=(12, 8))
+            pos = nx.spring_layout(G)
+            nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+                   node_size=2000, font_size=10, font_weight='bold',
+                   arrows=True, edge_color='gray', arrowsize=20)
+            
+            # Save the plot
+            output_file = os.path.join(self.temp_dir, "call_graph.png")
+            plt.savefig(output_file, dpi=300, bbox_inches='tight')
+            plt.close()
+            
+            # Convert to video
+            return self._convert_image_to_video(output_file)
+            
+        except Exception as e:
+            logger.error(f"Error creating fallback call graph: {e}")
+            return ""
+    
+    def _convert_image_to_video(self, image_path: str, duration: float = 5.0) -> str:
+        """Convert an image to a video clip."""
+        try:
+            image_clip = ImageClip(image_path).set_duration(duration)
+            output_file = os.path.join(self.temp_dir, "image_video.mp4")
+            image_clip.write_videofile(output_file, fps=self.fps, verbose=False, logger=None)
+            return output_file
+        except Exception as e:
+            logger.error(f"Error converting image to video: {e}")
+            return ""
+    
+    def create_terminal_simulation(self, commands: List[str], outputs: List[str]) -> str:
+        """
+        Create a terminal simulation video.
+        
+        Args:
+            commands: List of commands to simulate
+            outputs: List of corresponding outputs
+            
+        Returns:
+            Path to the generated video file
+        """
+        try:
+            duration = len(commands) * 3  # 3 seconds per command
+            
+            # Create background
+            background = ColorClip(size=self.resolution, color=(0, 0, 0), duration=duration)
+            
+            clips = [background]
+            current_time = 0
+            
+            for i, (command, output) in enumerate(zip(commands, outputs)):
+                # Command text
+                cmd_text = TextClip(
+                    f"$ {command}",
+                    fontsize=16,
+                    color='green',
+                    font='Courier'
+                ).set_position(('left', 100 + i * 60)).set_start(current_time).set_duration(3)
+                
+                # Output text
+                output_text = TextClip(
+                    output[:100] + "..." if len(output) > 100 else output,
+                    fontsize=14,
+                    color='white',
+                    font='Courier'
+                ).set_position(('left', 120 + i * 60)).set_start(current_time + 1).set_duration(2)
+                
+                clips.extend([cmd_text, output_text])
+                current_time += 3
+            
+            # Combine all clips
+            final_clip = CompositeVideoClip(clips)
+            
+            # Save the video
+            output_file = os.path.join(self.temp_dir, "terminal_simulation.mp4")
+            final_clip.write_videofile(output_file, fps=self.fps, verbose=False, logger=None)
+            
+            return output_file
+            
+        except Exception as e:
+            logger.error(f"Error creating terminal simulation: {e}")
+            return ""
     
     def cleanup(self):
         """Clean up temporary files."""
@@ -248,7 +769,7 @@ class VideoGenerator:
                 import shutil
                 shutil.rmtree(self.temp_dir)
         except Exception as e:
-            print(f"Error cleaning up temp directory: {str(e)}")
+            logger.error(f"Error cleaning up temp directory: {e}")
     
     def __del__(self):
         """Destructor to ensure cleanup."""
