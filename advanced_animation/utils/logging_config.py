@@ -15,13 +15,6 @@ from typing import Optional
 class LoggingManager:
     """Manages logging configuration for the advanced animation system."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self, output_dir and log_level as input. Returns a object value.
-    :param self: The self object.
-    :param output_dir: The output_dir string.
-    :param log_level: The log_level integer.
-    :return: Value of type object
-"""
     def __init__(self, output_dir: str = "logs", log_level: int = logging.INFO):
         """
         Initialize the logging manager.
@@ -35,11 +28,6 @@ class LoggingManager:
         self.log_file = None
         self.setup_logging()
     
-"""
-    Sets the logging to the specified value. Function has side effects, performs arithmetic operations. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def setup_logging(self):
         """Setup logging configuration with file and console handlers."""
         # Create logs directory if it doesn't exist
@@ -90,20 +78,10 @@ class LoggingManager:
         logger.info(f"Logging session started - Log file: {self.log_file}")
         logger.info(f"Log level: {logging.getLevelName(self.log_level)}")
     
-"""
-    Retrieves the log. Takes self as input. Returns a optional[path] value.
-    :param self: The self object.
-    :return: Value of type Optional[Path]
-"""
     def get_log_file_path(self) -> Optional[Path]:
         """Get the current log file path."""
         return self.log_file
     
-"""
-    Performs log_system_info operation. Function has side effects, performs arithmetic operations. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def log_system_info(self):
         """Log system information for debugging."""
         logger = logging.getLogger(__name__)
@@ -121,11 +99,6 @@ class LoggingManager:
         logger.info(f"Working directory: {os.getcwd()}")
         logger.info("=" * 60)
     
-"""
-    Performs log_environment_info operation. Function iterates over data, conditionally processes input, has side effects, performs arithmetic operations. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def log_environment_info(self):
         """Log environment information for debugging."""
         logger = logging.getLogger(__name__)
@@ -156,12 +129,6 @@ class LoggingManager:
         
         logger.info("=" * 60)
 
-"""
-    Sets the logging to the specified value. Function has side effects. Takes output_dir and log_level as input. Returns a loggingmanager value.
-    :param output_dir: The output_dir string.
-    :param log_level: The log_level integer.
-    :return: Value of type LoggingManager
-"""
 def setup_logging_for_run(output_dir: str = "logs", log_level: int = logging.INFO) -> LoggingManager:
     """
     Setup logging for a new run.
@@ -178,11 +145,6 @@ def setup_logging_for_run(output_dir: str = "logs", log_level: int = logging.INF
     manager.log_environment_info()
     return manager
 
-"""
-    Retrieves the logger. Function has side effects. Takes name as input. Returns a logging.logger value.
-    :param name: The name string.
-    :return: Value of type logging.Logger
-"""
 def get_logger(name: str) -> logging.Logger:
     """
     Get a logger with the specified name.

@@ -36,13 +36,6 @@ from .audio.audio_generator import AudioGenerator
 class AdvancedAnimationSystem:
     """Main orchestrator for the advanced animation system."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self, openai_api_key and output_dir as input. Returns a object value.
-    :param self: The self object.
-    :param openai_api_key: The openai_api_key value of type Optional[str].
-    :param output_dir: The output_dir string.
-    :return: Value of type object
-"""
     def __init__(self, openai_api_key: Optional[str] = None, output_dir: str = "advanced_output"):
         """
         Initialize the advanced animation system.
@@ -61,13 +54,6 @@ class AdvancedAnimationSystem:
         
         logger.info("AdvancedAnimationSystem initialized")
     
-"""
-    Creates a new animation instance. Function iterates over data, conditionally processes input, may throw exceptions, may return early, has side effects. Takes self, code_analysis and capture_execution as input. Returns a string value.
-    :param self: The self object.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :param capture_execution: The capture_execution boolean value.
-    :return: String value
-"""
     def create_animation_from_code(self, code_analysis: Dict[str, Any], 
                                  capture_execution: bool = True) -> str:
         """
@@ -117,13 +103,6 @@ class AdvancedAnimationSystem:
             logger.error(f"Error creating animation: {e}")
             raise
     
-"""
-    Performs _add_execution_traces_to_storyboard operation. Function iterates over data, conditionally processes input, has side effects. Takes self, storyboard and code_analysis as input. Returns a object value.
-    :param self: The self object.
-    :param storyboard: The storyboard value of type Storyboard.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :return: Value of type object
-"""
     def _add_execution_traces_to_storyboard(self, storyboard: Storyboard, 
                                           code_analysis: Dict[str, Any]):
         """Add execution traces to storyboard scenes."""
@@ -144,12 +123,6 @@ class AdvancedAnimationSystem:
         except Exception as e:
             logger.error(f"Error adding execution traces: {e}")
     
-"""
-    Performs _combine_videos operation. Function conditionally processes input, may return early, has side effects. Takes self and video_files as input. Returns a string value.
-    :param self: The self object.
-    :param video_files: The video_files value of type List[str].
-    :return: String value
-"""
     def _combine_videos(self, video_files: List[str]) -> str:
         """Combine multiple video files into one using VideoMerger."""
         try:
@@ -171,13 +144,6 @@ class AdvancedAnimationSystem:
             logger.error(f"Error combining videos: {e}")
             return video_files[0] if video_files else ""
     
-"""
-    Saves the storyboard based on self, storyboard, filename. Function may throw exceptions, may return early, has side effects. Takes self, storyboard and filename as input. Returns a string value.
-    :param self: The self object.
-    :param storyboard: The storyboard value of type Storyboard.
-    :param filename: The filename string.
-    :return: String value
-"""
     def save_storyboard(self, storyboard: Storyboard, filename: str = "storyboard.json") -> str:
         """Save storyboard to file."""
         try:
@@ -187,12 +153,6 @@ class AdvancedAnimationSystem:
             logger.error(f"Error saving storyboard: {e}")
             raise
     
-"""
-    Loads the storyboard based on self, filepath. Function may throw exceptions, may return early, has side effects. Takes self and filepath as input. Returns a storyboard value.
-    :param self: The self object.
-    :param filepath: The filepath string.
-    :return: Value of type Storyboard
-"""
     def load_storyboard(self, filepath: str) -> Storyboard:
         """Load storyboard from file."""
         try:
@@ -202,13 +162,6 @@ class AdvancedAnimationSystem:
             raise
 
 # Convenience functions
-"""
-    Creates a new animation instance. Function has side effects. Takes code_analysis, openai_api_key and output_dir as input. Returns a string value.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :param openai_api_key: The openai_api_key value of type Optional[str].
-    :param output_dir: The output_dir string.
-    :return: String value
-"""
 def create_animation(code_analysis: Dict[str, Any], 
                    openai_api_key: Optional[str] = None,
                    output_dir: str = "advanced_output") -> str:
@@ -226,12 +179,6 @@ def create_animation(code_analysis: Dict[str, Any],
     system = AdvancedAnimationSystem(openai_api_key, output_dir)
     return system.create_animation_from_code(code_analysis)
 
-"""
-    Generates the storyboard based on code_analysis, openai_api_key. Function has side effects. Takes code_analysis and openai_api_key as input. Returns a storyboard value.
-    :param code_analysis: The code_analysis value of type Dict[(str, Any)].
-    :param openai_api_key: The openai_api_key value of type Optional[str].
-    :return: Value of type Storyboard
-"""
 def generate_storyboard(code_analysis: Dict[str, Any], 
                        openai_api_key: Optional[str] = None) -> Storyboard:
     """
@@ -247,12 +194,6 @@ def generate_storyboard(code_analysis: Dict[str, Any],
     generator = StoryboardGenerator(openai_api_key)
     return generator.generate_storyboard(code_analysis)
 
-"""
-    Performs capture_execution operation. Function has side effects. Takes code_content and language as input. Returns a executiontrace value.
-    :param code_content: The code_content string.
-    :param language: The language string.
-    :return: Value of type ExecutionTrace
-"""
 def capture_execution(code_content: str, language: str = "python") -> ExecutionTrace:
     """
     Convenience function to capture execution trace.

@@ -32,162 +32,65 @@ except (ImportError, TypeError, AttributeError) as e:
     
     # Create dummy classes for when Manim is not available
     class VGroup:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, *args):
             self.elements = list(args)
         
-"""
-    Moves the to based on self, pos. Takes self and pos as input. Returns a object value.
-    :param self: The self object.
-    :param pos: The pos object.
-    :return: Value of type object
-"""
         def move_to(self, pos):
             return self
         
-"""
-    Performs scale operation. Takes self and factor as input. Returns a object value.
-    :param self: The self object.
-    :param factor: The factor object.
-    :return: Value of type object
-"""
         def scale(self, factor):
             return self
         
-"""
-    Retrieves the center. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def get_center(self):
             return [0, 0, 0]
     
     class Rectangle:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
         
-"""
-    Moves the to based on self, pos. Takes self and pos as input. Returns a object value.
-    :param self: The self object.
-    :param pos: The pos object.
-    :return: Value of type object
-"""
         def move_to(self, pos):
             return self
         
-"""
-    Retrieves the center. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def get_center(self):
             return [0, 0, 0]
     
     class Circle:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
         
-"""
-    Moves the to based on self, pos. Takes self and pos as input. Returns a object value.
-    :param self: The self object.
-    :param pos: The pos object.
-    :return: Value of type object
-"""
         def move_to(self, pos):
             return self
         
-"""
-    Retrieves the center. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def get_center(self):
             return [0, 0, 0]
     
     class Line:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
     
     class Text:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, text, **kwargs):
             self.text = text
             self.kwargs = kwargs
         
-"""
-    Moves the to based on self, pos. Takes self and pos as input. Returns a object value.
-    :param self: The self object.
-    :param pos: The pos object.
-    :return: Value of type object
-"""
         def move_to(self, pos):
             return self
     
     class Arrow:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
     
     class Axes:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
         
-"""
-    Retrieves the center. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def get_center(self):
             return [0, 0, 0]
         
-"""
-    Performs c2p operation. Takes self, x and y as input. Returns a object value.
-    :param self: The self object.
-    :param x: The x object.
-    :param y: The y object.
-    :return: Value of type object
-"""
         def c2p(self, x, y):
             return [x, y, 0]
     
     class ParametricFunction:
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
         def __init__(self, **kwargs):
             self.kwargs = kwargs
     
@@ -211,11 +114,6 @@ logger = logging.getLogger(__name__)
 class VisualMetaphorLibrary:
     """Library of visual metaphors for different data structures and algorithms."""
     
-"""
-    Performs __init__ operation. Function has side effects. Takes self as input. Returns a object value.
-    :param self: The self object.
-    :return: Value of type object
-"""
     def __init__(self):
         """Initialize the visual metaphor library."""
         self.metaphors = {
@@ -233,12 +131,6 @@ class VisualMetaphorLibrary:
         
         logger.info("VisualMetaphorLibrary initialized with metaphor functions")
     
-"""
-    Creates a new visual instance. Function conditionally processes input, may return early, has side effects. Takes self and element as input. Returns a any value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type Any
-"""
     def create_visual_element(self, element: VisualElement) -> Any:
         """Create a visual element based on its type."""
         try:
@@ -255,12 +147,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating visual element {element.type}: {e}")
             return self.create_fallback_element(element)
     
-"""
-    Creates a new rectangle instance. Function iterates over data, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_rectangle_array(self, element: VisualElement) -> VGroup:
         """Create a rectangle array visualization."""
         try:
@@ -297,12 +183,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating rectangle array: {e}")
             return VGroup()
     
-"""
-    Creates a new hierarchical instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_hierarchical_tree(self, element: VisualElement) -> VGroup:
         """Create a hierarchical tree visualization."""
         try:
@@ -365,12 +245,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating hierarchical tree: {e}")
             return VGroup()
     
-"""
-    Creates a new network instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_network_graph(self, element: VisualElement) -> VGroup:
         """Create a network graph visualization."""
         try:
@@ -419,12 +293,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating network graph: {e}")
             return VGroup()
     
-"""
-    Creates a new vertical instance. Function iterates over data, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_vertical_stack(self, element: VisualElement) -> VGroup:
         """Create a vertical stack visualization."""
         try:
@@ -455,12 +323,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating vertical stack: {e}")
             return VGroup()
     
-"""
-    Creates a new horizontal instance. Function iterates over data, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_horizontal_queue(self, element: VisualElement) -> VGroup:
         """Create a horizontal queue visualization."""
         try:
@@ -491,12 +353,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating horizontal queue: {e}")
             return VGroup()
     
-"""
-    Creates a new array instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_array_with_pivot(self, element: VisualElement) -> VGroup:
         """Create an array with pivot visualization for sorting."""
         try:
@@ -541,12 +397,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating array with pivot: {e}")
             return VGroup()
     
-"""
-    Creates a new array instance. Function iterates over data, conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_array_with_pointer(self, element: VisualElement) -> VGroup:
         """Create an array with pointer visualization for searching."""
         try:
@@ -594,12 +444,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating array with pointer: {e}")
             return VGroup()
     
-"""
-    Creates a new complexity instance. Function conditionally processes input, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_complexity_graph(self, element: VisualElement) -> VGroup:
         """Create a complexity analysis graph."""
         try:
@@ -660,12 +504,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating complexity graph: {e}")
             return VGroup()
     
-"""
-    Creates a new summary instance. Function iterates over data, may return early, has side effects, performs arithmetic operations. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_summary_dashboard(self, element: VisualElement) -> VGroup:
         """Create a summary dashboard visualization."""
         try:
@@ -726,12 +564,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating summary dashboard: {e}")
             return VGroup()
     
-"""
-    Creates a new text instance. Function may return early, has side effects. Takes self and element as input. Returns a text value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type Text
-"""
     def create_text_element(self, element: VisualElement) -> Text:
         """Create a text element."""
         try:
@@ -748,12 +580,6 @@ class VisualMetaphorLibrary:
             logger.error(f"Error creating text element: {e}")
             return Text("Error", color=RED)
     
-"""
-    Creates a new fallback instance. Function may return early, has side effects. Takes self and element as input. Returns a vgroup value.
-    :param self: The self object.
-    :param element: The element value of type VisualElement.
-    :return: Value of type VGroup
-"""
     def create_fallback_element(self, element: VisualElement) -> VGroup:
         """Create a fallback visual element."""
         try:
